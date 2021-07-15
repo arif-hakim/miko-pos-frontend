@@ -1,7 +1,9 @@
 <template>
   <div class="p-4">
     <h4 class="mb-1 text-center">
-      Welcome to MIKO-POS!
+      <img :src="logo" width="50" class="mb-1" alt="Logo">
+      <br>
+      Welcome to MIKO!
     </h4>
     <p class="text-center">
       Create your first company's branch.
@@ -128,6 +130,7 @@ export default {
       address,
       email,
       phone,
+      logo: root.$logo,
     }
   }
 }

@@ -30,7 +30,7 @@ axiosIns.interceptors.response.use(res => {
     router.replace('/login')
   }
 
-  if (err.response.status == 400 && err.response.data.data.validation){
+  if (err.response.status == 400 && err.response.data && err.response.data.data && err.response.data.data.validation){
     const { validation } = err.response.data.data
     const errors = Object.keys(validation).map(x => {
       let message = ''

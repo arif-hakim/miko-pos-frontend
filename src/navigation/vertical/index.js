@@ -55,18 +55,18 @@ const menu = [
     icon: 'ShoppingCartIcon',
     route: 'order',
     tagVariant: 'light-warning',
-  }, 
-  {
-    header: 'Inventory'
   },
   {
     title: 'Products',
     icon: 'BoxIcon',
     route: 'product',
     tagVariant: 'light-warning',
+  }, 
+  {
+    header: 'Inventory'
   },
   {
-    title: 'Supplies',
+    title: 'Raw Materials',
     icon: 'ArchiveIcon',
     route: 'supply',
     tagVariant: 'light-warning',

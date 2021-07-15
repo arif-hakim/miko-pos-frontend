@@ -1,7 +1,9 @@
 <template>
   <div class="p-4">
     <h4 class="mb-1 text-center">
-      Welcome to MIKO-POS!
+      <img :src="logo" width="50" class="mb-1" alt="Logo">
+      <br>
+      Welcome to MIKO!
     </h4>
     <b-col cols="12" md="6" lg="4" offset-md="3" offset-lg="4">
       <b-alert show variant="primary" class="p-2">
@@ -81,6 +83,7 @@ export default {
     return {
       doCreate,
       name,
+      logo: root.$logo,
     }
   }
 }

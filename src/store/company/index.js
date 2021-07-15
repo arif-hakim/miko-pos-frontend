@@ -26,7 +26,7 @@ export default {
       payload.user_id = currentUser.id
       
       const [response, error] = await axios.post('/company', payload)
-      if (response) dispatch('user/loginByToken', null, { root: true })
+      if (response) await dispatch('user/loginByToken', null, { root: true })
       return [response, error]
     },
     updateCompany: async ({ commit, dispatch }, payload) => {

@@ -14,9 +14,9 @@
         >
           <label>Role</label>
           <v-select
-            :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
             :value="roleFilter"
             :options="roleOptions"
+            placeholder="Filter by Role"
             class="w-100"
             :reduce="val => val.value"
             @input="(val) => $emit('update:roleFilter', val)"
@@ -27,25 +27,10 @@
           md="4"
           class="mb-md-0 mb-2"
         >
-          <label>Plan</label>
-          <v-select
-            :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-            :value="planFilter"
-            :options="planOptions"
-            class="w-100"
-            :reduce="val => val.value"
-            @input="(val) => $emit('update:planFilter', val)"
-          />
-        </b-col>
-        <b-col
-          cols="12"
-          md="4"
-          class="mb-md-0 mb-2"
-        >
           <label>Status</label>
           <v-select
-            :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
             :value="statusFilter"
+            placeholder="Filter by Status"
             :options="statusOptions"
             class="w-100"
             :reduce="val => val.value"

@@ -1,7 +1,6 @@
 <template>
 
   <div>
-
     <user-list-add-new
       :is-add-new-user-sidebar-active.sync="isAddNewUserSidebarActive"
       :role-options="roleOptions"
@@ -260,11 +259,11 @@ export default {
     const isAddNewUserSidebarActive = ref(false)
 
     const roleOptions = [
-      { label: 'Admin', value: 'admin' },
-      { label: 'Author', value: 'author' },
-      { label: 'Editor', value: 'editor' },
-      { label: 'Maintainer', value: 'maintainer' },
-      { label: 'Subscriber', value: 'subscriber' },
+      { label: 'Owner', value: 'Owner' },
+      { label: 'Branch Manager', value: 'Branch Manager' },
+      { label: 'Supervisor', value: 'Supervisor' },
+      { label: 'Staff', value: 'Staff' },
+      { label: 'Operator', value: 'Operator' },
     ]
 
     const planOptions = [

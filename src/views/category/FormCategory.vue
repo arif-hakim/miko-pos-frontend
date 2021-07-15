@@ -62,10 +62,12 @@ export default {
     })
 
     onMounted(async () => {
-      await fetchCategoryByID(category_id)
-      input.id = category.value.id
-      input.name = category.value.name
-      input.code = category.value.code
+      if (category_id) {
+        await fetchCategoryByID(category_id)
+        input.id = category.value.id
+        input.name = category.value.name
+        input.code = category.value.code
+      }
     })
 
     const submitHandler = (response, error) => {

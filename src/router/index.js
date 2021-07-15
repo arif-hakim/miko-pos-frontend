@@ -63,6 +63,7 @@ const router = new VueRouter({
       path: '*',
       redirect: 'error-404',
     },
+    ...apps,
     // ...dashboard,
     // ...pages,
     // ...chartsMaps,
@@ -74,7 +75,7 @@ const router = new VueRouter({
 
 router.beforeEach(async (to, _, next) => {
   const isLoggedIn = await isUserLoggedIn()
-  if (to.path === '/login') {
+  if (['/login', '/register'].includes(to.path)) {
     if (isLoggedIn) return next('/')
     return next()
   }

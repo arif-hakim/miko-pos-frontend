@@ -7,7 +7,7 @@
         <vuexy-logo />
 
         <h2 class="brand-text text-primary ml-1">
-          MIKO-POS
+          MIKO
         </h2>
       </b-link>
       <!-- /Brand logo-->
@@ -39,7 +39,7 @@
           class="px-xl-2 mx-auto"
         >
           <b-card-title class="mb-1">
-            Welcome to MIKO-POS 🚀
+            Welcome to MIKO 🚀
           </b-card-title>
           <b-card-text class="mb-2">
             Make your company management easy and fun!

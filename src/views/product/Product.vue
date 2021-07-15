@@ -32,25 +32,26 @@
         md="9"
         class="mb-1 text-right"
       >
-        <b-button
-          variant="primary"
-          size="sm"
+        <router-link
+          tag="button"
+          class="btn btn-sm btn-primary"
+          to="/product/create"
         >
-        <feather-icon
-          icon="PlusIcon"
-        />
+          <feather-icon
+            icon="PlusIcon"
+          />
           Create
-        </b-button>
+        </router-link>
       </b-col>
 
       <b-col cols="12">
         <b-table
-          striped
+          style="min-height:200px;"
           hover
           responsive
           :per-page="perPage"
           :current-page="currentPage"
-          :items="items"
+          :items="products"
           :fields="fields"
           :sort-by.sync="sortBy"
           :sort-desc.sync="sortDesc"
@@ -58,13 +59,55 @@
           :filter="filter"
           :filter-included-fields="filterOn"
           @filtered="onFiltered"
+          show-empty
         >
-          <template #cell(avatar)="data">
-            <b-avatar :src="data.value" />
+          <template #empty>
+            <div class="text-center">
+              <span v-if="isLoading">Loading..</span>
+              <span v-else>No data available</span>
+            </div>
+          </template>
+          <template #cell(no)="data">
+            {{ ++data.index }}
+          </template>
+          <template #cell(base_price)="data">
+            <vue-numeric separator="." v-model="data.item.base_price" read-only></vue-numeric>
+          </template>
+          <template #cell(selling_price)="data">
+            <vue-numeric separator="." v-model="data.item.selling_price" read-only></vue-numeric>
+          </template>
+          <template #cell(action)="data">
+            <b-dropdown id="dropdown-1" text="Stock" variant="warning" class="mr-1">
+              <b-dropdown-item :to="`/product/${data.item.id}/increase-stock`">Increase</b-dropdown-item>
+              <b-dropdown-item variant="danger" :to="`/product/${data.item.id}/decrease-stock`">Decrease</b-dropdown-item>
+              <b-dropdown-divider></b-dropdown-divider>
+              <b-dropdown-item :to="`/product/${data.item.id}/stock-history`">History</b-dropdown-item>
+            </b-dropdown>
+            <b-dropdown id="dropdown-1" text="More" variant="info" class="">
+              <b-dropdown-item :to="`/product/${data.item.id}`">Edit</b-dropdown-item>
+              <b-dropdown-item variant="danger" @click="doDelete()">Delete</b-dropdown-item>
+            </b-dropdown>
+            <!-- <router-link
+              tag="button"
+              class="btn btn-sm btn-warning mr-1"
+              :to="`/product/${data.item.id}`"
+            >
+              <feather-icon
+                icon="EditIcon"
+              ></feather-icon>
+            </router-link>
+            <b-button
+              size="sm"
+              variant="danger"
+              @click="doDelete(data.item.id)"
+            >
+              <feather-icon
+                icon="TrashIcon"
+              />
+            </b-button> -->
           </template>
         </b-table>
       </b-col>
-
       
       <b-col
         md="2"
@@ -102,14 +145,47 @@
 </template>
 
 <script>
+
+import moment from 'moment'
+import { useProduct } from '@/composable/useProduct'
+import { useUnit } from '@/composable/useUnit'
+import { ref, onMounted } from '@vue/composition-api'
+
 export default {
   components: {
+  },
+  setup(props, { root }) {
+    const { fetchProducts, products, deleteProduct } = useProduct()
+    const { activeUnit } = useUnit()
+    const totalRows = ref(0)
+
+    onMounted(async () => {
+      const unit_id = activeUnit.value.id
+      await fetchProducts({ unit_id })
+      totalRows.value = products.value.length
+    })
+
+    const doDelete = async (id) => {
+      const [response, error] = await deleteProduct(id)
+      submitHandler(response, error)
+    }
+
+    const submitHandler = (response, error) => {
+      if (error) return root.$notify.error(error.message)
+      root.$notify.success(response.message)
+    }
+
+    return {
+      totalRows,
+      moment,
+      ...useProduct(),
+      doDelete,
+    }
   },
   data() {
     return {
       perPage: 5,
       pageOptions: [3, 5, 10],
-      totalRows: 1,
       currentPage: 1,
       sortBy: '',
       sortDesc: false,
@@ -123,162 +199,17 @@ export default {
       },
       fields: [
         {
-          key: 'id', label: 'Id',
+          key: 'no', label: '#',
         },
-        {
-          key: 'avatar', label: 'Avatar',
-        },
-        { key: 'full_name', label: 'Full Name', sortable: true },
-        { key: 'post', label: 'Post', sortable: true },
-        'email',
-        'city',
-        'start_date',
-        'salary',
-        'age',
-        'experience',
-        // { key: 'status', label: 'Status', sortable: true },
-      ],
-      items: [
-        {
-          id: 1,
-          // eslint-disable-next-line global-require
-          avatar: require('@/assets/images/avatars/10-small.png'),
-          full_name: "Korrie O'Crevy",
-          post: 'Nuclear Power Engineer',
-          email: 'kocrevy0@thetimes.co.uk',
-          city: 'Krasnosilka',
-          start_date: '09/23/2016',
-          salary: '$23896.35',
-          age: '61',
-          experience: '1 Year',
-          status: 2,
-        },
-        {
-          id: 2,
-          // eslint-disable-next-line global-require
-          avatar: require('@/assets/images/avatars/1-small.png'),
-          full_name: 'Bailie Coulman',
-          post: 'VP Quality Control',
-          email: 'bcoulman1@yolasite.com',
-          city: 'Hinigaran',
-          start_date: '05/20/2018',
-          salary: '$13633.69',
-          age: '63',
-          experience: '3 Years',
-          status: 2,
-        },
-        {
-          id: 3,
-          // eslint-disable-next-line global-require
-          avatar: require('@/assets/images/avatars/9-small.png'),
-          full_name: 'Stella Ganderton',
-          post: 'Operator',
-          email: 'sganderton2@tuttocitta.it',
-          city: 'Golcowa',
-          start_date: '03/24/2018',
-          salary: '$13076.28',
-          age: '66',
-          experience: '6 Years',
-          status: 5,
-        },
-        {
-          id: 4,
-          // eslint-disable-next-line global-require
-          avatar: require('@/assets/images/avatars/3-small.png'),
-          full_name: 'Dorolice Crossman',
-          post: 'Cost Accountant',
-          email: 'dcrossman3@google.co.jp',
-          city: 'Paquera',
-          start_date: '12/03/2017',
-          salary: '$12336.17',
-          age: '22',
-          experience: '2 Years',
-          status: 2,
-        },
-        {
-          id: 5,
-          // eslint-disable-next-line global-require
-          avatar: require('@/assets/images/avatars/4-small.png'),
-          full_name: 'Harmonia Nisius',
-          post: 'Senior Cost Accountant',
-          email: 'hnisius4@gnu.org',
-          city: 'Lucan',
-          start_date: '08/25/2017',
-          salary: '$10909.52',
-          age: '33',
-          experience: '3 Years',
-          status: 2,
-        },
-        {
-          id: 6,
-          // eslint-disable-next-line global-require
-          avatar: require('@/assets/images/avatars/5-small.png'),
-          full_name: 'Genevra Honeywood',
-          post: 'Geologist',
-          email: 'ghoneywood5@narod.ru',
-          city: 'Maofan',
-          start_date: '06/01/2017',
-          salary: '$17803.80',
-          age: '61',
-          experience: '1 Year',
-          status: 1,
-        },
-        {
-          id: 7,
-          // eslint-disable-next-line global-require
-          avatar: require('@/assets/images/avatars/7-small.png'),
-          full_name: 'Eileen Diehn',
-          post: 'Environmental Specialist',
-          email: 'ediehn6@163.com',
-          city: 'Lampuyang',
-          start_date: '10/15/2017',
-          salary: '$18991.67',
-          age: '59',
-          experience: '9 Years',
-          status: 3,
-        },
-        {
-          id: 8,
-          // eslint-disable-next-line global-require
-          avatar: require('@/assets/images/avatars/9-small.png'),
-          full_name: 'Richardo Aldren',
-          post: 'Senior Sales Associate',
-          email: 'raldren7@mtv.com',
-          city: 'Skoghall',
-          start_date: '11/05/2016',
-          salary: '$19230.13',
-          age: '55',
-          experience: '5 Years',
-          status: 3,
-        },
-        {
-          id: 9,
-          // eslint-disable-next-line global-require
-          avatar: require('@/assets/images/avatars/2-small.png'),
-          full_name: 'Allyson Moakler',
-          post: 'Safety Technician',
-          email: 'amoakler8@shareasale.com',
-          city: 'Mogilany',
-          start_date: '12/29/2018',
-          salary: '$11677.32',
-          age: '39',
-          experience: '9 Years',
-          status: 5,
-        },
-        {
-          id: 10,
-          // eslint-disable-next-line global-require
-          avatar: require('@/assets/images/avatars/6-small.png'),
-          full_name: 'Merline Penhalewick',
-          post: 'Junior Executive',
-          email: 'mpenhalewick9@php.net',
-          city: 'Kanuma',
-          start_date: '04/19/2019',
-          salary: '$15939.52',
-          age: '23',
-          experience: '3 Years',
-          status: 2,
-        },
+        { key: 'category.name', label: 'Category', sortable: true },
+        { key: 'code', label: 'Code', sortable: true },
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'unit_measurement', label: 'Unit Measurement', sortable: true },
+        { key: 'base_price', label: 'Base Price', sortable: true },
+        { key: 'selling_price', label: 'Selling Price', sortable: true },
+        { key: 'description', label: 'Description', sortable: true },
+        { key: 'stock', label: 'Stock'},
+        { key: 'action', label: 'Action'},
       ],
     }
   },
@@ -289,10 +220,6 @@ export default {
         .filter(f => f.sortable)
         .map(f => ({ text: f.label, value: f.key }))
     },
-  },
-  mounted() {
-    // Set the initial number of items
-    this.totalRows = this.items.length
   },
   methods: {
     info(item, index, button) {

@@ -7,6 +7,7 @@ import router from './router'
 import store from './store'
 import App from './App.vue'
 import notification from '@/libs/notification'
+import { $themeConfig } from '@themeConfig'
 
 // Global Components
 import './global-components'
@@ -43,6 +44,7 @@ require('@/assets/scss/style.scss')
 
 Vue.config.productionTip = false
 
+Vue.prototype.$logo = $themeConfig.app.appLogoImage
 Vue.prototype.$notify = notification
 
 new Vue({

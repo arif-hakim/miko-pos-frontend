@@ -1,23 +1,26 @@
 <template>
   <div class="p-4">
     <h4 class="mb-1 text-center">
-      Welcome to MIKO-POS!
+      <img :src="logo" width="50" class="mb-1" alt="Logo">
+      <br>
+      Welcome to MIKO!
     </h4>
     <b-col cols="12" md="6" lg="4" offset-md="3" offset-lg="4" class="mt-4">
       <b-card>
         <b>CHOOSE BRANCH</b>
         <hr>
-        <b-form-select
+        <v-select
           v-model="currentBranch"
+          label="text"
+          :reduce="option => option.value"
+          placeholder="- Select a Branch -"
+          single
           :options="selectBranches"
         >
-          <template #first>
-            <b-form-select-option value="" disabled>- Please select a branch -</b-form-select-option>
-          </template>
-        </b-form-select>
+        </v-select>
         <b-button
           class="mt-1"
-          block
+          block 
           variant="primary"
           @click="chooseBranch"
         >Next</b-button>
@@ -61,7 +64,8 @@ export default {
       currentBranch,
       chooseBranch,
       selectBranches,
-      ...useBranch()
+      ...useBranch(),
+      logo: root.$logo,
     }
   }
 }

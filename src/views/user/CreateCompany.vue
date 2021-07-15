@@ -1,7 +1,8 @@
 <template>
   <div class="p-4">
     <h4 class="mb-1 text-center">
-      Welcome to MIKO-POS!
+      <img :src="logo" width="50" class="mb-1" alt="Logo">
+      <br>Welcome to MIKO!
     </h4>
     <p class="text-center">
       Before you continue, please fullfil the form below.
@@ -106,7 +107,6 @@
 import Ripple from 'vue-ripple-directive'
 import { useCompany } from '@/composable/useCompany'
 import { ref } from '@vue/composition-api'
-
 export default {
   directives: {
     Ripple
@@ -141,6 +141,7 @@ export default {
       email,
       phone,
       website,
+      logo: root.$logo
     }
   }
 }
