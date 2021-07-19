@@ -53,7 +53,7 @@
       <span>Company</span>
     </b-dropdown-item>
     <b-dropdown-item
-      :to="{ name: 'pages-pricing' }"
+      :to="{ name: 'branch' }"
       link-class="d-flex align-items-center"
     >
       <feather-icon
@@ -64,7 +64,7 @@
       <span>Branches</span>
     </b-dropdown-item>
     <b-dropdown-item
-      :to="{ name: 'pages-faq' }"
+      :to="{ name: 'unit' }"
       link-class="d-flex align-items-center"
     >
       <feather-icon

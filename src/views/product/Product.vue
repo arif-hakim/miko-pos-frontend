@@ -67,8 +67,15 @@
               <span v-else>No data available</span>
             </div>
           </template>
-          <template #cell(no)="data">
-            {{ ++data.index }}
+          <template #cell(picture)="data">
+            <img 
+              v-if="data.item.picture"
+              class="rounded"
+              width="50" 
+              :src="data.item.picture" 
+              :alt="data.item.name"
+              @error="data.item.picture = data.item.default_picture"
+            />
           </template>
           <template #cell(base_price)="data">
             <vue-numeric separator="." v-model="data.item.base_price" read-only></vue-numeric>
@@ -77,7 +84,7 @@
             <vue-numeric separator="." v-model="data.item.selling_price" read-only></vue-numeric>
           </template>
           <template #cell(action)="data">
-            <b-dropdown id="dropdown-1" text="Stock" variant="warning" class="mr-1">
+            <b-dropdown id="dropdown-1" text="Stock" variant="warning" style="margin-bottom:5px;" class="mr-1">
               <b-dropdown-item :to="`/product/${data.item.id}/increase-stock`">Increase</b-dropdown-item>
               <b-dropdown-item variant="danger" :to="`/product/${data.item.id}/decrease-stock`">Decrease</b-dropdown-item>
               <b-dropdown-divider></b-dropdown-divider>
@@ -85,26 +92,8 @@
             </b-dropdown>
             <b-dropdown id="dropdown-1" text="More" variant="info" class="">
               <b-dropdown-item :to="`/product/${data.item.id}`">Edit</b-dropdown-item>
-              <b-dropdown-item variant="danger" @click="doDelete()">Delete</b-dropdown-item>
+              <b-dropdown-item variant="danger" @click="doDelete(data.item.id)">Delete</b-dropdown-item>
             </b-dropdown>
-            <!-- <router-link
-              tag="button"
-              class="btn btn-sm btn-warning mr-1"
-              :to="`/product/${data.item.id}`"
-            >
-              <feather-icon
-                icon="EditIcon"
-              ></feather-icon>
-            </router-link>
-            <b-button
-              size="sm"
-              variant="danger"
-              @click="doDelete(data.item.id)"
-            >
-              <feather-icon
-                icon="TrashIcon"
-              />
-            </b-button> -->
           </template>
         </b-table>
       </b-col>
@@ -198,9 +187,7 @@ export default {
         content: '',
       },
       fields: [
-        {
-          key: 'no', label: '#',
-        },
+        { key: 'picture', label: '#' },
         { key: 'category.name', label: 'Category', sortable: true },
         { key: 'code', label: 'Code', sortable: true },
         { key: 'name', label: 'Name', sortable: true },

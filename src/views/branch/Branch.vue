@@ -35,7 +35,7 @@
         <router-link
           tag="button"
           class="btn btn-sm btn-primary"
-          to="/product/create"
+          to="/branch/create"
         >
           <feather-icon
             icon="PlusIcon"
@@ -46,12 +46,11 @@
 
       <b-col cols="12">
         <b-table
-          style="min-height:200px;"
           hover
           responsive
           :per-page="perPage"
           :current-page="currentPage"
-          :items="transactions"
+          :items="branches"
           :fields="fields"
           :sort-by.sync="sortBy"
           :sort-desc.sync="sortDesc"
@@ -67,33 +66,41 @@
               <span v-else>No data available</span>
             </div>
           </template>
+          <template #cell(created_at)="data">
+            {{ moment(data.created_at).format('DD/MM/YYYY') }}
+          </template>
           <template #cell(no)="data">
             {{ ++data.index }}
           </template>
-          <template #cell(payment_status)="data">
-            <b-badge pill variant="primary" v-if="data.item.payment_status == 'Unpaid'">{{ data.item.payment_status }}</b-badge>
-            <b-badge pill variant="success" v-if="data.item.payment_status == 'Paid'">{{ data.item.payment_status }}</b-badge>
-            <b-badge pill variant="danger" v-if="data.item.payment_status == 'Canceled'">{{ data.item.payment_status }}</b-badge>
-          </template>
-          <template #cell(description)="data">
-            {{ data.description || '-' }}
-          </template>
-          <template #cell(transaction_value)="data">
-            <vue-numeric separator="." v-model="data.item.transaction_value" read-only></vue-numeric>
-          </template>
-          <template #cell(total_items)="data">
-            <vue-numeric separator="." v-model="data.item.transaction_details.length" read-only></vue-numeric>
+          <template #cell(total_units)="data">
+            <router-link 
+              v-if="data.item.units.length"
+              class="font-weight-bold"
+              :to="{ name: 'unit', query: { branch_id: data.item.id } }"
+            >
+              {{ data.item.units.length }} {{ data.item.units.length > 1 ? 'Units' : 'Unit' }}
+            </router-link>
+            <span v-else>-</span>
           </template>
           <template #cell(action)="data">
-            <b-dropdown id="dropdown-1" text="Status" variant="warning" class="mr-1" v-if="!['Paid', 'Canceled'].includes(data.item.payment_status)">
-              <b-dropdown-item @click="doUpdate(data.item.id, 'Paid')">Paid</b-dropdown-item>
-              <b-dropdown-item variant="danger" @click="doUpdate(data.item.id, 'Canceled')">Cancel</b-dropdown-item>
-            </b-dropdown>
-            <b-dropdown id="dropdown-1" text="More" variant="info" class="">
-              <b-dropdown-item :to="`/order/${data.item.id}`">Details</b-dropdown-item>
-              <b-dropdown-divider></b-dropdown-divider>
-              <b-dropdown-item variant="danger" @click="doDelete(data.item.id)">Delete</b-dropdown-item>
-            </b-dropdown>
+            <router-link
+              tag="button"
+              class="btn btn-sm btn-warning mr-1"
+              :to="`/branch/${data.item.id}`"
+            >
+              <feather-icon
+                icon="EditIcon"
+              ></feather-icon>
+            </router-link>
+            <b-button
+              size="sm"
+              variant="danger"
+              @click="doDelete(data.item.id)"
+            >
+              <feather-icon
+                icon="TrashIcon"
+              />
+            </b-button>
           </template>
         </b-table>
       </b-col>
@@ -136,7 +143,7 @@
 <script>
 
 import moment from 'moment'
-import { useTransaction } from '@/composable/useTransaction'
+import { useBranch } from '@/composable/useBranch'
 import { useUnit } from '@/composable/useUnit'
 import { ref, onMounted } from '@vue/composition-api'
 
@@ -144,18 +151,18 @@ export default {
   components: {
   },
   setup(props, { root }) {
-    const { fetchTransactions, transactions, deleteTransaction, updateTransactionStatus } = useTransaction()
+    const { fetchBranches, branches, deleteBranch } = useBranch()
     const { activeUnit } = useUnit()
     const totalRows = ref(0)
 
     onMounted(async () => {
       const unit_id = activeUnit.value.id
-      await fetchTransactions({ unit_id })
-      totalRows.value = transactions.value.length
+      await fetchBranches({ unit_id })
+      totalRows.value = branches.value.length
     })
 
     const doDelete = async (id) => {
-      const [response, error] = await deleteTransaction(id)
+      const [response, error] = await deleteBranch(id)
       submitHandler(response, error)
     }
 
@@ -164,21 +171,11 @@ export default {
       root.$notify.success(response.message)
     }
 
-    const doUpdate = async (id, payment_status) => {
-      const payload = {
-        id,
-        payment_status
-      }
-      const [response, error] = await updateTransactionStatus(payload)
-      submitHandler(response, error)
-    }
-
     return {
       totalRows,
       moment,
-      ...useTransaction(),
+      ...useBranch(),
       doDelete,
-      doUpdate,
     }
   },
   data() {
@@ -200,12 +197,12 @@ export default {
         {
           key: 'no', label: '#',
         },
-        { key: 'code', label: 'Code', sortable: true },
-        { key: 'customer_name', label: 'Customer Name', sortable: true },
-        { key: 'transaction_value', label: 'Total', sortable: true },
-        { key: 'total_items', label: 'Total Items', sortable: true },
-        { key: 'payment_status', label: 'Status', sortable: true },
-        { key: 'description', label: 'Description', sortable: true },
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'total_units', label: 'Total Units', sortable: true },
+        { key: 'email', label: 'Email', sortable: true },
+        { key: 'address', label: 'Phone', sortable: true },
+        { key: 'phone', label: 'Address', sortable: true },
+        { key: 'created_at', label: 'Created At', sortable: true },
         { key: 'action', label: 'Action'},
       ],
     }

@@ -6,4 +6,11 @@ export default [
     meta: {
     },
   },
+  {
+    path: '/order/:id',
+    name: 'order',
+    component: () => import('@/views/order/OrderDetail.vue'),
+    meta: {
+    },
+  },
 ]

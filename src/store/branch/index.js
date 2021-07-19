@@ -6,11 +6,13 @@ export default {
     activeBranch: null,
     branch: null,
     branches: [],
+    isLoading: false,
   },
   mutations: {
     setBranch: (state, payload) => state.branch = payload,
     setBranches: (state, payload) => state.branches = payload,
     setActiveBranch: (state, payload) => state.activeBranch = payload,
+    setIsLoading: (state, payload) => state.isLoading = payload,
   },
   actions: {
     fetchBranches: async ({ commit, dispatch }, payload) => {

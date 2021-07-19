@@ -6,16 +6,22 @@ export default {
     unit: null,
     units: [],
     activeUnit: null,
+    isLoading: false,
   },
   mutations: {
     setUnit: (state, payload) => state.unit = payload,
     setUnits: (state, payload) => state.units = payload,
-    setActiveUnit: (state, payload) => state.activeUnit = payload
+    setActiveUnit: (state, payload) => state.activeUnit = payload,
+    setIsLoading: (state, payload) => state.isLoading = payload,
   },
   actions: {
-    fetchUnits: async ({ commit, dispatch }, payload) => {
-      const [response, error] = await axios.get('/unit', payload)
+    fetchUnits: async ({ commit, dispatch }, payload = { branch_id: null }) => {
+      commit('setIsLoading', true)
+      const [response, error] = await axios.get('/unit', {
+        params: { ...payload }
+      })
       if(response) commit('setUnits', response.data)
+      commit('setIsLoading', false)
       return [response, error]
     },
     fetchUnitByID: async ({ commit, dispatch }, id) => {

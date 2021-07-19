@@ -1,5 +1,13 @@
 import axios from '@axios'
 
+const convertToFormData = (data) => {
+  let formData = new FormData()
+  Object.keys(data).map(key => {
+    formData.append(key, data[key])
+  })
+  return formData
+}
+
 export default {
   namespaced: true,
   state: {
@@ -29,6 +37,8 @@ export default {
     createProduct: async ({ commit, dispatch, rootState }, payload) => {
       const currentUser = rootState.user.currentUser
       payload.company_id = currentUser.company_id
+
+      payload = convertToFormData(payload)
       const [response, error] = await axios.post('/product', payload)
       if (response) await dispatch('user/loginByToken', null, { root: true })
       return [response, error]

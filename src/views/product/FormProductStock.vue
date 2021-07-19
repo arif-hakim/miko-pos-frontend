@@ -1,7 +1,7 @@
 <template>
   <b-card
     style="text-transform:capitalize;"
-    :title="`${getTitle()} Product`"
+    :title="`${getTitle()} Product Stock`"
   >
     <b-row>
       <b-col cols="12" md="6" offset-md="3">

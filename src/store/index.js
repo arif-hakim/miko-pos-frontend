@@ -12,6 +12,7 @@ import branch from './branch'
 import unit from './unit'
 import category from './category'
 import product from './product'
+import transaction from './transaction'
 
 Vue.use(Vuex)
 
@@ -23,6 +24,7 @@ export default new Vuex.Store({
     unit,
     category,
     product,
+    transaction,
     
     // Template Dependency
     app,

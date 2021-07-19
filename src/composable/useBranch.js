@@ -20,10 +20,12 @@ export const useBranch = () => {
   const {
     branch,
     branches,
+    isLoading,
     activeBranch,
   } = useNamespacedState('branch', [
     'branch',
     'branches',
+    'isLoading',
     'activeBranch',
   ])
 
@@ -32,6 +34,7 @@ export const useBranch = () => {
     // states
     branch,
     branches,
+    isLoading,
     activeBranch,
 
     // actions

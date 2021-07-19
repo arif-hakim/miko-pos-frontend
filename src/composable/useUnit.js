@@ -21,10 +21,12 @@ export const useUnit = () => {
     unit,
     units,
     activeUnit,
+    isLoading,
   } = useNamespacedState('unit', [
     'unit',
     'units',
     'activeUnit',
+    'isLoading',
   ])
 
 
@@ -33,6 +35,7 @@ export const useUnit = () => {
     unit,
     units,
     activeUnit,
+    isLoading,
 
     // actions
     fetchUnits,

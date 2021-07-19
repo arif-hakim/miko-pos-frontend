@@ -16,6 +16,8 @@ import category from './routes/category'
 import product from './routes/product'
 import supply from './routes/supply'
 import user from './routes/user'
+import branch from './routes/branch'
+import unit from './routes/unit'
 
 Vue.use(VueRouter)
 
@@ -59,6 +61,8 @@ const router = new VueRouter({
     ...product,
     ...supply,
     ...user,
+    ...branch,
+    ...unit,
     {
       path: '*',
       redirect: 'error-404',

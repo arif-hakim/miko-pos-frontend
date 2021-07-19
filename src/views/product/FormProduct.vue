@@ -69,6 +69,17 @@
         >
           <vue-numeric separator="." class="form-control" v-model="input.selling_price" />
         </b-form-group>
+        <b-form-group
+          for="extension"
+          class="mt-1"
+          label="Product Picture"
+        >
+          <b-form-file
+            id="extension"
+            accept=".jpg, .png, .gif"
+            v-model="input.picture"
+          />
+        </b-form-group>
         <div class="text-center">
           <b-button
             :disabled="isLoading"
@@ -106,6 +117,12 @@ export default {
       id: null,
       name: '',
       code: '',
+      category_id: '',
+      unit_measurement: '',
+      description: '',
+      base_price: '',
+      selling_price: null,
+      picture: null,
     })
 
     onMounted(async () => {
@@ -134,7 +151,7 @@ export default {
         ...input,
         unit_id: activeUnit.value.id
       }
-      
+
       if (product_id) {
         const [response, error] = await updateProduct(payload)
         submitHandler(response, error)
