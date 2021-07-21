@@ -99,8 +99,7 @@ router.beforeEach(async (to, _, next) => {
   // BRANCH INIT
   // ==============
   if (to.path === '/create-branch') {
-    if (isInitBranchNeeded()) return next()
-    else return next('/')
+    return next()
   }
   if (isInitBranchNeeded()) return next('/create-branch')
 
@@ -115,8 +114,7 @@ router.beforeEach(async (to, _, next) => {
   // UNIT INIT
   // ==============
   if (to.path === '/create-unit') {
-    if (isInitUnitNeeded()) return next()
-    else return next('/')
+    return next()
   }
   if (isInitUnitNeeded()) return next('/create-unit')
   

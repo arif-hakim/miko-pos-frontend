@@ -1,5 +1,6 @@
 <template>
-  <div class="p-4">
+  <div class="px-4 pb-4 pt-2">
+    <Topbar></Topbar>
     <h4 class="mb-1 text-center">
       <img :src="logo" width="50" class="mb-1" alt="Logo">
       <br>
@@ -91,11 +92,18 @@
 
 <script>
 
+import Topbar from './Topbar'
 import Ripple from 'vue-ripple-directive'
 import { useBranch } from '@/composable/useBranch'
 import { ref } from '@vue/composition-api'
+import { initialAbility } from '@/libs/acl/config'
+import useJwt from '@/auth/jwt/useJwt'
 
 export default {
+  components: {
+    Topbar,
+
+  },
   directives: {
     Ripple
   },
@@ -131,6 +139,19 @@ export default {
       email,
       phone,
       logo: root.$logo,
+      logout: () => {
+        localStorage.removeItem(useJwt.jwtConfig.storageTokenKeyName)
+        localStorage.removeItem(useJwt.jwtConfig.storageRefreshTokenKeyName)
+
+        // Remove userData from localStorage
+        localStorage.clear()
+
+        // Reset ability
+        root.$ability.update(initialAbility)
+
+        // Redirect to login page
+        root.$router.push({ name: 'auth-login' })
+      }
     }
   }
 }

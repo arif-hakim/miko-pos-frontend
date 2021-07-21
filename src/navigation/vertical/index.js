@@ -51,12 +51,6 @@ const menu = [
     header: 'Transactions'
   },
   {
-    title: 'Order Menu',
-    icon: 'ShoppingCartIcon',
-    route: 'apps-e-commerce-shop',
-    tagVariant: 'light-warning',
-  },
-  {
     title: 'Orders',
     icon: 'ShoppingCartIcon',
     route: 'order',

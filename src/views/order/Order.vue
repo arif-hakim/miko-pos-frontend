@@ -35,7 +35,7 @@
         <router-link
           tag="button"
           class="btn btn-sm btn-primary"
-          to="/product/create"
+          to="/order/create"
         >
           <feather-icon
             icon="PlusIcon"
