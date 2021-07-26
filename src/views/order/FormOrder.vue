@@ -1,6 +1,74 @@
 <template>
   <div style="height: inherit">
 
+    <!-- MODAL ORDER ITEM -->
+    <b-modal
+      centered
+      header-bg-variant="light"
+      id="modalOrder"
+      v-model="modalOrder"
+      ref="modal"
+      title="Add To Cart"
+    >
+      <template #modal-header>
+        <div class="w-100">
+            <b>Add To Cart</b>
+        </div>
+      </template>
+      <div class="text-center">
+        <b-img
+          :src="modalData.picture"
+          width="300"
+        ></b-img>
+      </div>
+      <b-row class="mb-1">
+        <b-col cols="6">
+          <h4 class="text-primary">{{ modalData.name }}</h4>
+        </b-col>
+        <b-col cols="6" class="text-right">
+          <h4 class="text-primary">
+            <vue-numeric read-only separator="." v-model="modalData.subtotal"></vue-numeric>
+          </h4>
+        </b-col>
+        <b-col cols="12">{{ modalData.description }}</b-col>
+        <b-col cols="8" offset="2" class="d-flex mt-1 py-1">
+            <b-button @click="() => modalData.qty == 0 ? '' : --modalData.qty" variant="danger">-</b-button>
+            <b-input v-model="modalData.qty" min="0" class="mx-2 text-center"></b-input>
+            <b-button @click="() => ++modalData.qty" variant="primary">+</b-button>
+        </b-col>
+      </b-row>
+      <b-form-group
+        class="border-top pt-1"
+        label="Note"
+        label-for="note-item"
+      >
+        <b-form-textarea
+          id="note-item"
+          required
+          v-model="modalData.note"
+        >
+        </b-form-textarea>
+      </b-form-group>
+
+      <template #modal-footer>
+        <div class="w-100 d-flex justify-content-between">
+          <b-button
+            variant="secondary"
+            @click="closeOrderModal"
+          >
+            Cancel
+          </b-button>
+          <b-button
+            variant="primary"
+            class="ml-2"
+            @click="doAddToCart()"
+          >
+            Add To Cart
+          </b-button>
+        </div>
+      </template>
+    </b-modal>
+
     <!-- ECommerce Header -->
     <section id="ecommerce-header">
       <div class="row">
@@ -14,7 +82,7 @@
                 @click="mqShallShowLeftSidebar = true"
               />
               <div class="search-results">
-                {{ totalProducts }} results found
+                {{ products.length }} results found
               </div>
             </div>
             <div class="view-options d-flex">
@@ -92,8 +160,7 @@
         class="ecommerce-card"
         no-body
       >
-        <div class="item-img text-center">
-          <b-link :to="{ name: 'apps-e-commerce-product-details', params: { slug: product.id } }">
+        <div class="item-img justify-content-center">
             <b-img
               :alt="`${product.name}-${product.id}`"
               fluid
@@ -101,50 +168,33 @@
               :src="product.picture"
               @error="product.picture = product.default_picture"
             />
-          </b-link>
         </div>
 
         <!-- Product Details -->
         <b-card-body>
           <div class="item-wrapper">
-            <div class="item-rating">
-              <!-- <ul class="unstyled-list list-inline">
-                <li
-                  v-for="star in 5"
-                  :key="star"
-                  class="ratings-list-item"
-                  :class="{'ml-25': star-1}"
-                >
-                  <feather-icon
-                    icon="StarIcon"
-                    size="16"
-                    :class="[{'fill-current': star <= product.rating}, star <= product.rating ? 'text-warning' : 'text-muted']"
-                  />
-                </li>
-              </ul> -->
-            </div>
-            <div>
-              <h6 class="item-price">
-                ${{ product.selling_price }}
-              </h6>
-            </div>
           </div>
           <h6 class="item-name">
-            <b-link
-              class="text-body"
-              :to="{ name: 'apps-e-commerce-product-details', params: { slug: product.id } }"
-            >
-              {{ product.name }}
-            </b-link>
-            <!-- <b-card-text class="item-company">
-              By <b-link class="ml-25">
-                {{ product.brand }}
-              </b-link>
-            </b-card-text> -->
+            <b-row>
+              <b-col cols="6">
+                  <h4
+                    class="text-primary"
+                  >
+                    {{ product.name }}
+                  </h4>
+              </b-col>
+              <b-col cols="6 text-right">
+                <h4 class="item-price">
+                  <vue-numeric read-only separator="." v-model="product.selling_price"></vue-numeric>
+                </h4>
+              </b-col>
+              <b-col cols="12">
+                <b-card-text class="item-description">
+                  {{ product.description || '-' }}
+                </b-card-text>
+              </b-col>
+            </b-row>
           </h6>
-          <b-card-text class="item-description">
-            {{ product.description }}
-          </b-card-text>
         </b-card-body>
 
         <!-- Product Actions -->
@@ -170,16 +220,16 @@
             <span>Wishlist</span>
           </b-button> -->
           <b-button
-            :variant="product.isInCart ? 'warning' : 'primary'"
+            variant="primary"
             tag="a"
             class="btn-cart"
-            @click="handleCartActionClick(product)"
+            @click="openOrderModal(product)"
           >
             <feather-icon
               icon="ShoppingCartIcon"
               class="mr-50"
             />
-            <span>{{ product.isInCart ? 'View In Cart' : 'Add to Cart' }}</span>
+            <span>Add to Cart</span>
           </b-button>
         </div>
       </b-card>
@@ -191,7 +241,7 @@
         <b-col cols="12">
           <b-pagination
             v-model="filters.page"
-            :total-rows="totalProducts"
+            :total-rows="products.length"
             :per-page="filters.perPage"
             first-number
             align="center"
@@ -229,12 +279,13 @@
 
 <script>
 import Ripple from 'vue-ripple-directive'
-import { watch, ref, onMounted } from '@vue/composition-api'
+import { watch, ref, onMounted, reactive } from '@vue/composition-api'
 import { useResponsiveAppLeftSidebarVisibility } from '@core/comp-functions/ui/app'
 import ShopLeftFilterSidebar from '@/views/apps/e-commerce/e-commerce-shop/ECommerceShopLeftFilterSidebar.vue'
 import { useShopFiltersSortingAndPagination, useShopUi, useShopRemoteData } from '@/views/apps/e-commerce/e-commerce-shop/useECommerceShop'
 import { useEcommerceUi } from '@/views/apps/e-commerce/useEcommerce'
 import { useProduct } from '@/composable/useProduct'
+import { useCart } from '@/composable/useCart'
 
 export default {
   directives: {
@@ -244,7 +295,7 @@ export default {
     // SFC
     ShopLeftFilterSidebar,
   },
-  setup(props, context) {
+  setup(props, { root }) {
     const {
       filters, filterOptions, sortBy, sortByOptions,
     } = useShopFiltersSortingAndPagination()
@@ -258,42 +309,84 @@ export default {
     // const { products, fetchProducts } = useShopRemoteData()
     const { mqShallShowLeftSidebar } = useResponsiveAppLeftSidebarVisibility()
 
-    // Wrapper Function for `fetchProducts` which can be triggered initially and upon changes of filters
-    // const fetchShopProducts = () => {
-    //   fetchProducts({
-    //     q: filters.value.q,
-    //     sortBy: sortBy.value.value,
-    //     page: filters.value.page,
-    //     perPage: filters.value.perPage,
-    //   })
-    //     .then(response => {
-
-    //       products.value = response[0].products
-    //       totalProducts.value = response[0].total
-    //     })
-    // }
-
     // fetchShopProducts()
+    // ^^^^ UI DEPENDENCIES
+    // =====================
+    // Write code below..
+
+    const modalOrder = ref(false)
+
     const { fetchProducts, products } = useProduct()
-    
+    const { cart, addToCart } = useCart()
+
     onMounted(async () => {
       await fetchProducts()
-      console.log(products)
     })
 
+    const modalData = reactive({
+      id: null,
+      name: null,
+      price: 0,
+      subtotal: 0,
+      description: null,
+      note: null,
+      picture: null,
+      qty: 1,
+      note: '',
+    })
 
-    watch([filters, sortBy], () => {
-      fetchShopProducts()
+    const openOrderModal = (product) => {
+      modalData.id = product.id
+      modalData.name = product.name
+      modalData.price = product.selling_price
+      modalData.description = product.description
+      modalData.subtotal = product.selling_price * modalData.qty
+      modalData.note = product.note
+      modalData.picture = product.picture
+      modalData.qty = 1
+      modalData.note = ''
+      modalOrder.value = true
+    }
+
+    const doAddToCart = async () => {
+      const response = await addToCart(modalData)
+      if (response) root.$notify.success('Item added to cart!')
+      modalOrder.value = false
+    }
+
+    const closeOrderModal = () => {
+      modalData.id = null
+      modalData.name = null
+      modalData.price = 0
+      modalData.description = null
+      modalData.note = null
+      modalData.picture = null
+      modalData.qty = 0
+      modalData.note = ''
+      modalOrder.value = false 
+    }
+
+    watch([filters, sortBy], async (filter) => {
+      let search = filter[0].q
+      await fetchProducts({ search })
     }, {
       deep: true,
     })
 
+    watch(() => modalData.qty, (val) => {
+      if (val > 0) modalData.subtotal = modalData.price * val
+    })
+
     return {
-      // useShopFiltersSortingAndPagination
+      doAddToCart,
+      closeOrderModal,
+      modalData,
+      openOrderModal,
       filters,
       filterOptions,
       sortBy,
       sortByOptions,
+      modalOrder,
 
       // useShopUi
       itemView,

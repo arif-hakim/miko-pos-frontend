@@ -3,7 +3,8 @@ import axios from '@axios'
 const convertToFormData = (data) => {
   let formData = new FormData()
   Object.keys(data).map(key => {
-    formData.append(key, data[key])
+    let value = data[key] ? data[key] : ''
+    formData.append(key, value)
   })
   return formData
 }
@@ -23,15 +24,18 @@ export default {
     setProductStockHistories: (state, payload) => state.productStockHistories = payload,
   },
   actions: {
-    fetchProducts: async ({ commit, dispatch, rootState }, payload) => {
+    fetchProducts: async ({ commit, dispatch, rootState }, payload = { search: '' }) => {
       const { id } = rootState.unit.activeUnit
-      const [response, error] = await axios.get('/product', { params: { unit_id: id }})
-      if(response) commit('setProducts', response.data)
+      const [response, error] = await axios.get('/product', { params: { 
+        unit_id: id,
+        ...payload
+      }})
+      if (response) commit('setProducts', response.data)
       return [response, error]
     },
     fetchProductByID: async ({ commit, dispatch }, id) => {
       const [response, error] = await axios.get(`/product/${id}`)
-      if(response) commit('setProduct', response.data)
+      if (response) commit('setProduct', response.data)
       return [response, error]
     },
     createProduct: async ({ commit, dispatch, rootState }, payload) => {
@@ -45,7 +49,8 @@ export default {
     },
     updateProduct: async ({ commit, dispatch }, payload) => {
       const { id } = payload
-      const [response, error] = await axios.put(`/product/${id}`, payload)
+      payload = convertToFormData(payload)
+      const [response, error] = await axios.post(`/product/${id}`, payload)
       if (response) dispatch('fetchProductByID', id)
       return [response, error]
     },
@@ -62,6 +67,7 @@ export default {
     },
     deleteProduct: async ({ commit, dispatch }, id) => {
       const [response, error] = await axios.delete(`/product/${id}`)
+      if (response) dispatch('fetchProducts')
       return [response, error]
     },
   },

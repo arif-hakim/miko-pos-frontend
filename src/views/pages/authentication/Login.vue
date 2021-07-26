@@ -104,7 +104,7 @@
                 type="submit"
                 variant="primary"
                 block
-                :disabled="invalid"
+                :disabled="invalid || isLoading"
               >
                 Sign in
               </b-button>
@@ -117,7 +117,6 @@
               <span>&nbsp;Create an account</span>
             </b-link>
           </b-card-text>
-
         </b-col>
       </b-col>
       <!-- /Login-->
@@ -154,7 +153,8 @@ export default {
 
     const {
       login,
-      ability
+      ability,
+      isLoading,
     } = useUser()
 
     const doLogin = async () => {
@@ -178,6 +178,7 @@ export default {
       userEmail,
       sideImg,
       doLogin,
+      isLoading,
 
       // validation rules
       required,

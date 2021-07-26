@@ -13,6 +13,7 @@ import unit from './unit'
 import category from './category'
 import product from './product'
 import transaction from './transaction'
+import cart from './cart'
 
 Vue.use(Vuex)
 
@@ -25,6 +26,7 @@ export default new Vuex.Store({
     category,
     product,
     transaction,
+    cart,
     
     // Template Dependency
     app,

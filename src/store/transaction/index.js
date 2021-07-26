@@ -26,8 +26,9 @@ export default {
       return [response, error]
     },
     createTransaction: async ({ commit, dispatch, rootState }, payload) => {
-      const currentUser = rootState.user.currentUser
-      payload.company_id = currentUser.company_id
+      const activeUnit = rootState.unit.activeUnit
+      payload.unit_id = activeUnit.id
+      payload.payment_status = 'Unpaid'
       const [response, error] = await axios.post('/transaction', payload)
       if (response) await dispatch('user/loginByToken', null, { root: true })
       return [response, error]

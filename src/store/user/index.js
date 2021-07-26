@@ -8,6 +8,7 @@ export default {
     users: null,
     authorized: false,
     ability: [],
+    isLoading: false,
   },
   getters: {
     getUser: (state) => state.user,
@@ -21,6 +22,7 @@ export default {
     setCurrentUser: (state, payload) => state.currentUser = payload,
     setAuthorized: (state, payload) => state.authorized = payload,
     setAbility: (state, payload) => state.ability = payload,
+    setIsLoading: (state, payload) => state.isLoading = payload
   },
   actions: {
     setCurrentUser: ({ commit }, payload) => {
@@ -46,8 +48,10 @@ export default {
       return userData
     },
     login: async ({ commit, dispatch }, payload) => {
+      commit('setIsLoading', true)
       const [response, error] = await axios.post('/login', payload)
       if(response) dispatch('setCurrentUser', response.data)
+      commit('setIsLoading', false)
       return [response, error]
     },
     loginByToken: async ({ commit, dispatch }) => {
@@ -57,8 +61,10 @@ export default {
       return [response, error]
     },
     register: async({ commit, dispatch }, payload) => {
+      commit('setIsLoading', true)
       const [response, error] = await axios.post('/register', payload)
       if (response) dispatch('setCurrentUser', response.data)
+      commit('setIsLoading', false)
       return [response, error]
     }
   },

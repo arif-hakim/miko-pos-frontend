@@ -17,18 +17,20 @@ export const useUser = () => {
     currentUser,
     user,
     users,
-    ability
+    ability,
+    isLoading,
   } = useNamespacedState('user', [
     'ability',
+    'isLoading',
     'currentUser',
     'users',
     'user',
   ])
 
-
   return {
     // states
     ability,
+    isLoading,
     currentUser,
     user,
     users,
