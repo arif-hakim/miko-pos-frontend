@@ -2,14 +2,12 @@ import { useNamespacedActions, useNamespacedState } from "vuex-composition-helpe
 export const useCompany = () => {
 
   const {
-    fetchCompanies,
-    fetchCompanyByID,
+    fetchCompany,
     createCompany,
     updateCompany,
     deleteCompany,
   } = useNamespacedActions('company', [
-    'fetchCompanies',
-    'fetchCompanyByID',
+    'fetchCompany',
     'createCompany',
     'updateCompany',
     'deleteCompany',
@@ -30,8 +28,7 @@ export const useCompany = () => {
     companies,
 
     // actions
-    fetchCompanies,
-    fetchCompanyByID,
+    fetchCompany,
     createCompany,
     updateCompany,
     deleteCompany,

@@ -28,15 +28,29 @@
           </b-input-group>
         </b-form-group>
       </b-col>
+      <b-col
+        md="9"
+        class="mb-1 text-right"
+      >
+        <router-link
+          tag="button"
+          class="btn btn-sm btn-primary"
+          to="/material-category/create"
+        >
+          <feather-icon
+            icon="PlusIcon"
+          />
+          Create
+        </router-link>
+      </b-col>
 
       <b-col cols="12">
         <b-table
-          style="min-height:200px;"
           hover
           responsive
           :per-page="perPage"
           :current-page="currentPage"
-          :items="productStockHistories"
+          :items="materialCategories"
           :fields="fields"
           :sort-by.sync="sortBy"
           :sort-desc.sync="sortDesc"
@@ -52,17 +66,31 @@
               <span v-else>No data available</span>
             </div>
           </template>
-          <template #cell(date)="data">
-            {{ moment(data.item.created_at).format('DD/MM/YY h:mm a') }}
+          <template #cell(created_at)="data">
+            {{ moment(data.created_at).format('DD/MM/YYYY') }}
           </template>
-          <template #cell(changes)="data">
-            <b-badge :variant="data.item.changes <= 0 ? 'danger' : 'success'"> {{ data.item.changes <= 0 ? data.item.changes : `+${data.item.changes}`  }} </b-badge>
+          <template #cell(no)="data">
+            {{ ++data.index }}
           </template>
-          <template #cell(description)="data">
-            {{ data.item.description || '-' }}
-          </template>
-          <template #cell(from)="data">
-            {{ data.item.source || '-' }}
+          <template #cell(action)="data">
+            <router-link
+              tag="button"
+              class="btn btn-sm btn-warning mr-1"
+              :to="`/material-category/${data.item.id}`"
+            >
+              <feather-icon
+                icon="EditIcon"
+              ></feather-icon>
+            </router-link>
+            <b-button
+              size="sm"
+              variant="danger"
+              @click="doDelete(data.item.id)"
+            >
+              <feather-icon
+                icon="TrashIcon"
+              />
+            </b-button>
           </template>
         </b-table>
       </b-col>
@@ -105,7 +133,7 @@
 <script>
 
 import moment from 'moment'
-import { useProduct } from '@/composable/useProduct'
+import { useMaterialCategory } from '@/composable/useMaterialCategory'
 import { useUnit } from '@/composable/useUnit'
 import { ref, onMounted } from '@vue/composition-api'
 
@@ -113,15 +141,20 @@ export default {
   components: {
   },
   setup(props, { root }) {
-    const { id } = root.$route.params
-    const { fetchProductStockHistories, productStockHistories } = useProduct()
+    const { fetchMaterialCategories, materialCategories, deleteMaterialCategory } = useMaterialCategory()
     const { activeUnit } = useUnit()
     const totalRows = ref(0)
 
     onMounted(async () => {
-      await fetchProductStockHistories(id)
-      totalRows.value = productStockHistories.value.length
+      const unit_id = activeUnit.value.id
+      await fetchMaterialCategories({ unit_id })
+      totalRows.value = materialCategories.value.length
     })
+
+    const doDelete = async (id) => {
+      const [response, error] = await deleteMaterialCategory(id)
+      submitHandler(response, error)
+    }
 
     const submitHandler = (response, error) => {
       if (error) return root.$notify.error(error.message)
@@ -131,7 +164,8 @@ export default {
     return {
       totalRows,
       moment,
-      ...useProduct(),
+      ...useMaterialCategory(),
+      doDelete,
     }
   },
   data() {
@@ -150,10 +184,13 @@ export default {
         content: '',
       },
       fields: [
-        { key: 'changes', label: 'Changes' },
-        { key: 'description', label: 'Description' },
-        { key: 'date', label: 'Date' },
-        // { key: 'from', label: 'From' },
+        {
+          key: 'no', label: '#',
+        },
+        { key: 'code', label: 'Code', sortable: true },
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'created_at', label: 'Created At', sortable: true },
+        { key: 'action', label: 'Action'},
       ],
     }
   },

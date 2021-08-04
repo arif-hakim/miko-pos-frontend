@@ -14,10 +14,12 @@ import others from './routes/others'
 import order from './routes/order'
 import category from './routes/category'
 import product from './routes/product'
-import supply from './routes/supply'
+import material from './routes/material'
+import materialCategory from './routes/material-category'
 import user from './routes/user'
 import branch from './routes/branch'
 import unit from './routes/unit'
+import company from './routes/company'
 
 Vue.use(VueRouter)
 
@@ -29,11 +31,30 @@ const router = new VueRouter({
   },
   routes: [
     {
+      path: '/error-404',
+      name: 'error-404',
+      component: () => import('@/views/error/Error404.vue'),
+      meta: {
+        layout: 'full',
+        resource: 'Auth',
+        action: 'read',
+      },
+    },
+    {
       path: '/',
       name: 'dashboard',
       component: () => import('@/views/dashboard/Dashboard.vue'),
       meta: {
         pageTitle: 'Dashboard',
+      },
+    },
+    {
+      path: '/make-order',
+      name: 'make-order',
+      component: () => import('@/views/order/MakeOrder.vue'),
+      meta: {
+        layout: 'make-order',
+        contentClass: 'ecommerce-application',
       },
     },
     {
@@ -56,18 +77,20 @@ const router = new VueRouter({
         redirectIfLoggedIn: true,
       },
     },
+    ...materialCategory,
     ...category,
     ...order,
     ...product,
-    ...supply,
+    ...material,
     ...user,
     ...branch,
     ...unit,
+    ...apps,
+    ...company,
     {
       path: '*',
       redirect: 'error-404',
     },
-    ...apps,
     // ...dashboard,
     // ...pages,
     // ...chartsMaps,
@@ -79,6 +102,7 @@ const router = new VueRouter({
 
 router.beforeEach(async (to, _, next) => {
   const isLoggedIn = await isUserLoggedIn()
+  if (['/make-order'].includes(to.path)) return next()
   if (['/login', '/register'].includes(to.path)) {
     if (isLoggedIn) return next('/')
     return next()

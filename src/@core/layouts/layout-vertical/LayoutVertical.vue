@@ -117,11 +117,12 @@ export default {
       return 'layout-content-renderer-default'
     },
   },
-  setup() {
+  setup(props, { root }) {
     const {
       routerTransition, navbarBackgroundColor, navbarType, footerType, isNavMenuHidden,
     } = useAppConfig()
-
+    const layoutType = root.$route.meta.layout
+    if (layoutType == 'make-order') root.$store.commit('appConfig/UPDATE_NAV_MENU_HIDDEN', true)
     const {
       isVerticalMenuActive,
       toggleVerticalMenuActive,
@@ -157,6 +158,13 @@ export default {
   },
 }
 </script>
+
+
+<style scoped>
+  html [data-col="1-column"] .header-navbar.floating-nav {
+    width: calc( 100vw - (100vw - 100%) - calc(2rem * 1.1) ) !important;
+  }
+</style>
 
 <style lang="scss">
 @import "~@core/scss/base/themes/bordered-layout.scss";

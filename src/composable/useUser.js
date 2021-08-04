@@ -19,9 +19,11 @@ export const useUser = () => {
     users,
     ability,
     isLoading,
+    authorized,
   } = useNamespacedState('user', [
     'ability',
     'isLoading',
+    'authorized',
     'currentUser',
     'users',
     'user',
@@ -34,6 +36,7 @@ export const useUser = () => {
     currentUser,
     user,
     users,
+    authorized,
 
     // actions
     setCurrentUser,

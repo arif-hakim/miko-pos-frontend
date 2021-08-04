@@ -25,7 +25,8 @@ export default {
   },
   actions: {
     fetchProducts: async ({ commit, dispatch, rootState }, payload = { search: '' }) => {
-      const { id } = rootState.unit.activeUnit
+      const unit = rootState.unit
+      const id = unit.activeUnit.id
       const [response, error] = await axios.get('/product', { params: { 
         unit_id: id,
         ...payload

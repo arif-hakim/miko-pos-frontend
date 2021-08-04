@@ -7,7 +7,13 @@
     </h4>
     <b-col cols="12" md="6" lg="4" offset-md="3" offset-lg="4" class="mt-4">
       <b-card>
-        <b>CHOOSE BRANCH</b>
+        <div class="d-flex justify-content-between">
+          <b>CHOOSE BRANCH</b>
+          <b-link
+            to="/create-branch"
+            class="btn btn-primary btn-sm"
+          >Create New Branch</b-link>
+        </div>
         <hr>
         <v-select
           v-model="currentBranch"

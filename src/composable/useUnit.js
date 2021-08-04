@@ -8,6 +8,10 @@ export const useUnit = () => {
     updateUnit,
     deleteUnit,
     setActiveUnit,
+    fetchUnitByOrderToken,
+    downloadQRCode,
+    generateQRCode,
+    updateTax,
   } = useNamespacedActions('unit', [
     'fetchUnits',
     'fetchUnitByID',
@@ -15,6 +19,10 @@ export const useUnit = () => {
     'updateUnit',
     'deleteUnit',
     'setActiveUnit',
+    'fetchUnitByOrderToken',
+    'downloadQRCode',
+    'generateQRCode',
+    'updateTax',
   ])
 
   const {
@@ -42,7 +50,11 @@ export const useUnit = () => {
     fetchUnitByID,
     createUnit,
     updateUnit,
+    updateTax,
     deleteUnit,
     setActiveUnit,
+    fetchUnitByOrderToken,
+    downloadQRCode,
+    generateQRCode,
   }
 }

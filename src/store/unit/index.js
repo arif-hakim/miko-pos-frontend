@@ -11,7 +11,10 @@ export default {
   mutations: {
     setUnit: (state, payload) => state.unit = payload,
     setUnits: (state, payload) => state.units = payload,
-    setActiveUnit: (state, payload) => state.activeUnit = payload,
+    setActiveUnit: (state, payload) => {
+      state.activeUnit = payload
+      localStorage.setItem('activeUnit', JSON.stringify(payload))
+    },
     setIsLoading: (state, payload) => state.isLoading = payload,
   },
   actions: {
@@ -42,12 +45,35 @@ export default {
       if (response) dispatch('fetchUnitByID', id)
       return [response, error]
     },
+    updateTax: async ({ commit, dispatch }, payload) => {
+      const { id } = payload
+      const [response, error] = await axios.put(`/unit/${id}/update-tax`, payload)
+      if (response) dispatch('fetchUnitByID', id)
+      return [response, error]
+    },
     deleteUnit: async ({ commit, dispatch }, id) => {
       const [response, error] = await axios.delete(`/unit/${id}`)
+      if (response) dispatch('fetchUnits')
       return [response, error]
     },
     setActiveUnit: async ({ commit, dispatch }, payload) => {
       commit('setActiveUnit', payload)
+    },
+    downloadQRCode: async ({ commit, dispatch }, id) => {
+      const [response, error] = await axios.get(`/unit/${id}/download-qrcode`, { responseType: 'blob' })
+      return [response, error]
+    },
+    generateQRCode: async ({ commit, dispatch }, id) => {
+      const [response, error] = await axios.get(`/unit/${id}/generate-qrcode`)
+      return [response, error]
+    },
+
+    // Make Order API
+    // with postfix make-order in base url, become : /make-order/unit
+    fetchUnitByOrderToken: async ({ commit, dispatch }, payload) => {
+      const [response, error] = await axios.get(`/unit`)
+      if(response) commit('setActiveUnit', response.data)
+      return [response, error]
     }
   },
 }

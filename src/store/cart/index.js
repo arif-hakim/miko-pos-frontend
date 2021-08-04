@@ -20,7 +20,6 @@ export default {
     }, 
     addItemToCart: (state, payload) => {
       let cart = getCartFromStorage()
-      console.log({cart})
       const thisItemInCart = cart.filter(x => x.id == payload.id)[0]
       if (thisItemInCart) {
         cart = cart.map(x => {

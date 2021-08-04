@@ -1,5 +1,6 @@
 <template>
   <b-nav-item-dropdown
+    ref="cartDropdown"
     class="dropdown-cart mr-25"
     menu-class="dropdown-menu-media"
     right
@@ -15,9 +16,9 @@
       <template #modal-header>
         <div class="w-100 d-flex justify-content-between">
             <b>Customer Identity</b>
-            <span>
+            <b-link>
               or sign in as employee
-            </span>
+            </b-link>
         </div>
       </template>
       <b-form-group
@@ -59,6 +60,7 @@
         class="text-body"
         icon="ShoppingCartIcon"
         size="21"
+        ref="cartToggler"
       />
     </template>
 
@@ -164,7 +166,7 @@ import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 import Ripple from 'vue-ripple-directive'
 import { useCart } from '@/composable/useCart' 
 import { useTransaction } from '@/composable/useTransaction' 
-import { ref, watch, computed } from '@vue/composition-api'
+import { ref, watch, computed, onMounted } from '@vue/composition-api'
 
 export default {
   components: {
@@ -181,10 +183,17 @@ export default {
     Ripple,
   },
   setup(props, { root }) {
-    
+    const cartToggler = ref(null)
+    const cartDropdown = ref(null)
     const { createTransaction } = useTransaction()
     const { cart, loadCart, updateCart, removeFromCart, clearCart } = useCart()
     loadCart()
+
+    onMounted(() => {
+      cartDropdown.value.listenOnRoot('openCartDropdown', (e) => {
+        cartDropdown.value.$el.classList.add('show')
+      })
+    })
 
     const updateSubtotal = (item) => {
       cart.value.map(x => {
@@ -207,6 +216,11 @@ export default {
       }
     })
 
+    const modalAsEmployee = ref(false)
+    const employeeEmail = ref('')
+    const employeePassword = ref('')
+    const employeeUnitID = ref(null)
+
     const customerName = ref('')
     const modalIdentity = ref(false)
     const openIdentityModal = () => {
@@ -220,7 +234,7 @@ export default {
     }
 
     const submitHandler = (response, error) => {
-      if (error) return root.$notify.error(error.message)
+      if (error && error.message) return root.$notify.error(error.message)
       else if (response) {
         root.$notify.success(response.message)
         closeIdentityModal()
@@ -247,6 +261,12 @@ export default {
     }
 
     return {
+      modalAsEmployee,
+      employeeEmail,
+      employeePassword,
+      employeeUnitID,
+      cartToggler,
+      cartDropdown,
       placeOrder,
       totalAmount,
       updateSubtotal,

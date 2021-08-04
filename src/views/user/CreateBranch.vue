@@ -1,6 +1,6 @@
 <template>
   <div class="px-4 pb-4 pt-2">
-    <Topbar></Topbar>
+    <!-- <Topbar></Topbar> -->
     <h4 class="mb-1 text-center">
       <img :src="logo" width="50" class="mb-1" alt="Logo">
       <br>

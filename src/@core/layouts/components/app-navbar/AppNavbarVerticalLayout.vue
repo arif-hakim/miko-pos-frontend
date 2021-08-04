@@ -1,6 +1,5 @@
 <template>
   <div class="navbar-container d-flex content align-items-center">
-
     <!-- Nav Menu Toggler -->
     <ul class="nav navbar-nav d-xl-none">
       <li class="nav-item">
@@ -27,8 +26,8 @@
       <dark-Toggler class="d-none d-lg-block" />
       <!-- <search-bar /> -->
       <cart-dropdown />
-      <notification-dropdown />
-      <user-dropdown />
+      <notification-dropdown v-if="authorized" />
+      <user-dropdown v-if="authorized" />
     </b-navbar-nav>
   </div>
 </template>
@@ -37,6 +36,7 @@
 import {
   BLink, BNavbarNav,
 } from 'bootstrap-vue'
+import { isUserLoggedIn } from '@/auth/utils'
 import Bookmarks from './components/Bookmarks.vue'
 import Locale from './components/Locale.vue'
 import SearchBar from './components/SearchBar.vue'
@@ -44,6 +44,7 @@ import DarkToggler from './components/DarkToggler.vue'
 import CartDropdown from './components/CartDropdown.vue'
 import NotificationDropdown from './components/NotificationDropdown.vue'
 import UserDropdown from './components/UserDropdown.vue'
+import { useUser } from '@/composable/useUser'
 
 export default {
   components: {
@@ -65,5 +66,10 @@ export default {
       default: () => {},
     },
   },
+  setup(props, { root }) {
+    return {
+      ...useUser()
+    }
+  }
 }
 </script>

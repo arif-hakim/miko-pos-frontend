@@ -49,7 +49,7 @@ export default {
   },
   props: [],
   setup(props, { root }){
-    const { fetchUnits, activeUnit, units } = useUnit()
+    const { fetchUnits, activeUnit, units, setActiveUnit } = useUnit()
     const { activeBranch } = useBranch()
     const selectUnits = ref([])
     const currentUnit = ref('')
@@ -64,9 +64,9 @@ export default {
       })
     })
 
-    const chooseUnit = () => {
+    const chooseUnit = async () => {
       if (!currentUnit.value) return root.$notify.error('You have to choose a unit!')
-      localStorage.setItem('activeUnit', JSON.stringify(currentUnit.value))
+      await setActiveUnit(currentUnit.value)
       root.$router.replace('/')
     }
 

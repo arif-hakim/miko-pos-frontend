@@ -11,13 +11,8 @@ export default {
     setCompanies: (state, payload) => state.companies = payload,
   },
   actions: {
-    fetchCompanies: async ({ commit, dispatch }, payload) => {
-      const [response, error] = await axios.get('/company', payload)
-      if(response) commit('setCompanies', response.data)
-      return [response, error]
-    },
-    fetchCompanyByID: async ({ commit, dispatch }, id) => {
-      const [response, error] = await axios.get(`/company/${id}`)
+    fetchCompany: async ({ commit, dispatch }) => {
+      const [response, error] = await axios.get(`/company`)
       if(response) commit('setCompany', response.data)
       return [response, error]
     },

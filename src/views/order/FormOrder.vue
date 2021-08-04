@@ -1,6 +1,5 @@
 <template>
   <div style="height: inherit">
-
     <!-- MODAL ORDER ITEM -->
     <b-modal
       centered
@@ -73,20 +72,8 @@
     <section id="ecommerce-header">
       <div class="row">
         <div class="col-sm-12">
-          <div class="ecommerce-header-items">
-            <div class="result-toggler">
-              <feather-icon
-                icon="MenuIcon"
-                class="d-block d-lg-none"
-                size="21"
-                @click="mqShallShowLeftSidebar = true"
-              />
-              <div class="search-results">
-                {{ products.length }} results found
-              </div>
-            </div>
-            <div class="view-options d-flex">
-
+          <div class="w-100">
+            <div class="view-options d-flex justify-content-between">
               <!-- Sort Button -->
               <b-dropdown
                 v-ripple.400="'rgba(113, 102, 240, 0.15)'"
@@ -295,7 +282,7 @@ export default {
     // SFC
     ShopLeftFilterSidebar,
   },
-  setup(props, { root }) {
+  setup(props, { root, emit }) {
     const {
       filters, filterOptions, sortBy, sortByOptions,
     } = useShopFiltersSortingAndPagination()
@@ -350,7 +337,10 @@ export default {
 
     const doAddToCart = async () => {
       const response = await addToCart(modalData)
-      if (response) root.$notify.success('Item added to cart!')
+      if (response) {
+        root.$notify.success('Item added to cart!')
+        root.$emit('openCartDropdown')
+      }
       modalOrder.value = false
     }
 
@@ -410,6 +400,7 @@ export default {
 </style>
 
 <style lang="scss" scoped>
+
 .item-view-radio-group ::v-deep {
   .btn {
     display: flex;

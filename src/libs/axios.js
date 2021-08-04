@@ -3,7 +3,6 @@ import router from '@/router'
 
 // axios
 import axios from 'axios'
-import store from '@/store'
 
 const baseURL = process.env.VUE_APP_API_BASE_URL
 const headers = {}
@@ -16,7 +15,13 @@ const axiosIns = axios.create({
 })
 
 axiosIns.interceptors.request.use(async request => {
-  const token = localStorage.getItem('accessToken')
+  let token = localStorage.getItem('accessToken')
+  let orderToken = localStorage.getItem('orderToken')
+  if (router.currentRoute.name && router.currentRoute.name.includes('make-order')) {
+    token = orderToken
+    request.baseURL += '/make-order'
+  }
+  
   if (token) request.headers.Authorization = `Bearer ${token}`
   return request
 })
@@ -25,8 +30,12 @@ axiosIns.interceptors.response.use(res => {
   const response = res.data
   return [response, null]
 }, err => {
+  if (!err.response) {
+    console.log(err)
+    return
+  }
   if (err.response.status == 401) {
-    Vue.prototype.$notify.error(err.response.data.message)
+    if (err.response.data.message) Vue.prototype.$notify.error(err.response.data.message)
     router.replace('/login')
   }
 

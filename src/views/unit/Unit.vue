@@ -176,7 +176,10 @@ export default {
     })
 
     onMounted(async () => {
-      await fetchUnits()
+      let payload = {}
+      console.log(filterBranch.value)
+      if (filterBranch.value) payload.branch_id = filterBranch.value
+      await fetchUnits(payload)
       await fetchBranches()
       totalRows.value = units.value.length
     })
@@ -190,6 +193,10 @@ export default {
       if (error) return root.$notify.error(error.message)
       root.$notify.success(response.message)
     }
+
+    watch(units.value, () => {
+      totalRows.value = units.value.length
+    })
 
     return {
       totalRows,

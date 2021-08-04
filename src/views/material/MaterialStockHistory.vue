@@ -36,7 +36,7 @@
           responsive
           :per-page="perPage"
           :current-page="currentPage"
-          :items="productStockHistories"
+          :items="materialStockHistories"
           :fields="fields"
           :sort-by.sync="sortBy"
           :sort-desc.sync="sortDesc"
@@ -105,7 +105,7 @@
 <script>
 
 import moment from 'moment'
-import { useProduct } from '@/composable/useProduct'
+import { useMaterial } from '@/composable/useMaterial'
 import { useUnit } from '@/composable/useUnit'
 import { ref, onMounted } from '@vue/composition-api'
 
@@ -114,13 +114,13 @@ export default {
   },
   setup(props, { root }) {
     const { id } = root.$route.params
-    const { fetchProductStockHistories, productStockHistories } = useProduct()
+    const { fetchMaterialStockHistories, materialStockHistories } = useMaterial()
     const { activeUnit } = useUnit()
     const totalRows = ref(0)
 
     onMounted(async () => {
-      await fetchProductStockHistories(id)
-      totalRows.value = productStockHistories.value.length
+      await fetchMaterialStockHistories(id)
+      totalRows.value = materialStockHistories.value.length
     })
 
     const submitHandler = (response, error) => {
@@ -131,7 +131,7 @@ export default {
     return {
       totalRows,
       moment,
-      ...useProduct(),
+      ...useMaterial(),
     }
   },
   data() {

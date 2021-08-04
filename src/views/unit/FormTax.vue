@@ -1,18 +1,18 @@
 <template>
   <b-card
-    :title="`${getTitle()} Unit`"
+    :title="`Tax`"
   >
     <b-row>
       <!-- first name -->
       <b-col cols="12">
         <b-form-group
-          label="Name"
+          label="Tax (%)"
           label-for="v-company-name"
         >
           <b-form-input
             id="v-company-name"
-            v-model="input.name"
-            placeholder="Name"
+            v-model="input.tax"
+            placeholder="Tax in percent. Eg. 10, 15"
           />
         </b-form-group>
       </b-col>
@@ -41,48 +41,39 @@ export default {
   },
   setup(props, { root }) {
     const { activeUnit } = useUnit()
-    const { id: unit_id } = activeUnit
-    const { createUnit, unit, fetchUnitByID, updateUnit } = useUnit()
+    const { id: unit_id } = activeUnit.value
+    const { updateTax, unit, fetchUnitByID } = useUnit()
     
     const input = reactive({
       id: null,
-      name: '',
+      tax: 0,
     })
 
     onMounted(async () => {
       if (unit_id) {
         await fetchUnitByID(unit_id)
         input.id = unit.value.id
-        input.name = unit.value.name
+        input.tax = unit.value.tax
       }
     })
 
     const submitHandler = (response, error) => {
       if (error) return root.$notify.error(error.message)
       root.$notify.success(response.message)
-      return root.$router.replace('/unit')
     }
     
     const save = async () => {
       const payload = {
         ...input,
       }
-      
-      if (unit_id) {
-        const [response, error] = await updateUnit(payload)
-        submitHandler(response, error)
-      }
-      else {
-        const [response, error] = await createUnit(payload)
-        submitHandler(response, error)
-      }
+      const [response, error] = await updateTax(payload)
+      submitHandler(response, error)
     }
 
     return {
       unit_id,
       input,
       save,
-      getTitle: () => unit_id ? 'Edit' : 'Create',
       ...useUnit(),
     }
   },

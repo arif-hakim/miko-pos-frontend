@@ -1,5 +1,4 @@
 /*
-
 Array of object
 
 Top level object can be:
@@ -37,39 +36,69 @@ tagVariant
 // import uiElements from './ui-elements'
 // import formAndTable from './forms-and-table'
 
-const menu = [
+const menu = [ 
   {
-    header: 'Master Data'
-  },
-  {
-    title: 'Category',
-    icon: 'GridIcon',
-    route: 'category',
+    title: 'Company Profile',
+    icon: 'HomeIcon',
+    route: 'current-unit',
     tagVariant: 'light-warning',
-  }, 
-  {
-    header: 'Transactions'
   },
   {
-    title: 'Orders',
+    header: 'Sales'
+  },
+  {
+    title: 'Order',
     icon: 'ShoppingCartIcon',
     route: 'order',
     tagVariant: 'light-warning',
   },
   {
-    title: 'Products',
+    title: 'Tax',
+    icon: 'ShoppingCartIcon',
+    route: 'tax',
+    tagVariant: 'light-warning',
+  },
+  {
+    title: 'Product',
     icon: 'BoxIcon',
     route: 'product',
     tagVariant: 'light-warning',
-  }, 
+    children: [
+      {
+        title: 'Product',
+        icon: 'BoxIcon',
+        route: 'product',
+        tagVariant: 'light-warning',
+      },
+      {
+        title: 'Category',
+        icon: 'GridIcon',
+        route: 'category',
+        tagVariant: 'light-warning',
+      },
+    ]
+  },
   {
     header: 'Inventory'
   },
   {
-    title: 'Raw Materials',
+    title: 'Raw Material',
     icon: 'ArchiveIcon',
-    route: 'supply',
     tagVariant: 'light-warning',
+    children: [
+      {
+        title: 'Raw Material',
+        icon: 'ArchiveIcon',
+        route: 'material',
+        tagVariant: 'light-warning',
+      },
+      {
+        title: 'Category',
+        icon: 'GridIcon',
+        route: 'material-category',
+        tagVariant: 'light-warning',
+      },
+    ]
   },
 ]
 

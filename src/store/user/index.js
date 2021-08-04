@@ -50,14 +50,22 @@ export default {
     login: async ({ commit, dispatch }, payload) => {
       commit('setIsLoading', true)
       const [response, error] = await axios.post('/login', payload)
-      if(response) dispatch('setCurrentUser', response.data)
+      if(response) {
+        dispatch('setCurrentUser', response.data)
+        localStorage.setItem('activeBranch', null)
+        localStorage.setItem('activeUnit', null)
+      }
       commit('setIsLoading', false)
       return [response, error]
     },
     loginByToken: async ({ commit, dispatch }) => {
       const [response, error] = await axios.post('/login/token')
       if (response) dispatch('setCurrentUser', response.data)
-      if (error) localStorage.clear() 
+      if (error) {
+        const orderToken = localStorage.getItem('orderToken')
+        // localStorage.clear()
+        // if (orderToken) localStorage.setItem('orderToken', orderToken)
+      }
       return [response, error]
     },
     register: async({ commit, dispatch }, payload) => {

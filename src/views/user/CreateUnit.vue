@@ -62,7 +62,7 @@ export default {
   },
   props: [],
   setup(props, { root }){
-    const { createUnit } = useUnit()
+    const { createUnit, setActiveUnit } = useUnit()
     const { activeBranch } = useBranch()
     const name = ref('')
 
@@ -75,7 +75,7 @@ export default {
       const [response, error] = await createUnit(payload)
       response ? root.$notify.success(response.message) : root.$notify.error(error.message)
       if (response) {
-        localStorage.setItem('activeUnit', JSON.stringify(response.data))
+        await setActiveUnit(response.data)
         return root.$router.replace('/')
       }
     }

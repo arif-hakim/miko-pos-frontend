@@ -50,6 +50,7 @@ export default {
     },
     deleteTransaction: async ({ commit, dispatch }, id) => {
       const [response, error] = await axios.delete(`/transaction/${id}`)
+      if (response) dispatch('fetchTransactions')
       return [response, error]
     },
   },
