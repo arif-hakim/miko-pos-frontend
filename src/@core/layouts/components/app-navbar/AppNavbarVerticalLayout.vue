@@ -1,7 +1,7 @@
 <template>
   <div class="navbar-container d-flex content align-items-center">
     <!-- Nav Menu Toggler -->
-    <ul class="nav navbar-nav d-xl-none">
+    <ul class="nav navbar-nav d-none">
       <li class="nav-item">
         <b-link
           class="nav-link"
@@ -23,10 +23,10 @@
     </div>
 
     <b-navbar-nav class="nav align-items-center ml-auto">
-      <dark-Toggler class="d-none d-lg-block" />
-      <!-- <search-bar /> -->
       <cart-dropdown />
-      <notification-dropdown v-if="authorized" />
+      <!-- <dark-Toggler class="d-none d-lg-block" /> -->
+      <!-- <search-bar /> -->
+      <!-- <notification-dropdown v-if="authorized" /> -->
       <user-dropdown v-if="authorized" />
     </b-navbar-nav>
   </div>

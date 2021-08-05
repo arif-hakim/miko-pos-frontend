@@ -30,6 +30,23 @@
       </b-col>
 
       <b-col cols="12">
+        <b-card>
+          <b-row class="align-items-center">
+              <div>
+                <img :src="material.picture" :alt="material.name" width="100" class="mr-2 rounded">
+              </div>
+              <div>
+                <p class="mr-2 mb-0"><b>Name :</b> {{ material.name }}</p>
+                <p class="mr-2 mb-0"><b>Code :</b> {{ material.code }}</p>
+                <p class="mr-2 mb-0"><b>Category :</b> {{ material.raw_material_category.name }}</p>
+              </div>
+              <div>
+                <p class="mr-2 mb-0"><b>Unit Measurement :</b> {{ material.unit_measurement }}</p>
+                <p class="mr-2 mb-0"><b>Description :</b> {{ material.description }}</p>
+                <p class="mr-2 mb-0"><b>Current Stock :</b> {{ material.stock }} {{ material.unit_measurement }}</p>
+              </div>
+          </b-row>
+        </b-card>
         <b-table
           style="min-height:200px;"
           hover
@@ -62,7 +79,10 @@
             {{ data.item.description || '-' }}
           </template>
           <template #cell(from)="data">
-            {{ data.item.source || '-' }}
+            {{ data.item.from || '-' }}
+          </template>
+          <template #cell(to)="data">
+            {{ data.item.to || '-' }}
           </template>
         </b-table>
       </b-col>
@@ -114,12 +134,13 @@ export default {
   },
   setup(props, { root }) {
     const { id } = root.$route.params
-    const { fetchMaterialStockHistories, materialStockHistories } = useMaterial()
+    const { fetchMaterialStockHistories, materialStockHistories, fetchMaterialByID } = useMaterial()
     const { activeUnit } = useUnit()
     const totalRows = ref(0)
 
     onMounted(async () => {
       await fetchMaterialStockHistories(id)
+      await fetchMaterialByID(id)
       totalRows.value = materialStockHistories.value.length
     })
 
@@ -150,7 +171,9 @@ export default {
         content: '',
       },
       fields: [
+        { key: 'from', label: 'From' },
         { key: 'changes', label: 'Changes' },
+        { key: 'to', label: 'To' },
         { key: 'description', label: 'Description' },
         { key: 'date', label: 'Date' },
         // { key: 'from', label: 'From' },

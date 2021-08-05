@@ -73,6 +73,10 @@
                       <b-badge variant="danger" v-if="transaction.payment_status == 'Canceled'">{{ transaction.payment_status }}</b-badge>
                     </b-col>
                   </b-row>
+                  <!-- <b-row class="mb-1" >
+                      <b-badge variant="primary" v-if="transaction.payment_status == 'Paid'">{{ transaction.payment_status }}</b-badge>
+                    </b-col>
+                  </b-row> -->
                   <b-row class="mb-1">
                     <b-col cols="12" md="4">Date</b-col>
                     <b-col cols="12" md="8">{{ moment(transaction.created_at).format('DD/MM/YY hh:mm A') }}</b-col>
@@ -98,7 +102,7 @@
                         Tax:
                       </p>
                       <p class="invoice-total-amount">
-                        0%
+                        {{ transaction.tax }}%
                       </p>
                     </div>
                     <hr class="my-50">
@@ -107,7 +111,7 @@
                         Total:
                       </p>
                       <p class="invoice-total-amount">
-                        <vue-numeric read-only separator="." v-model="transaction.transaction_value"></vue-numeric>
+                        <vue-numeric read-only separator="." v-model="transaction.grand_total"></vue-numeric>
                       </p>
                     </div>
                   </div>
@@ -167,6 +171,9 @@
                       <template #cell(total_price)="data">
                         <vue-numeric separator="." v-model="data.item.total_price" read-only></vue-numeric>
                       </template>
+                      <template #cell(note)="data">
+                        <span>{{ data.item.description }}</span>
+                      </template>
                     </b-table>
                     <b-row>
                       <b-col
@@ -208,12 +215,6 @@
 
             <!-- Spacer -->
             <hr class="invoice-spacing">
-
-            <!-- Note -->
-            <b-card-body class="invoice-padding pt-0">
-              <span class="font-weight-bold">Note: </span>
-              <b-form-textarea v-model="transaction.description" class="bg-light" readonly />
-            </b-card-body>
           </b-card>
         </b-form>
       </b-col>
@@ -280,7 +281,7 @@ export default {
         { key: 'price', label: 'Price', sortable: true },
         { key: 'quantity', label: 'Qty', sortable: true },
         { key: 'total_price', label: 'Total Price', sortable: true },
-        { key: 'action', label: 'Action'},
+        { key: 'note', label: 'Note'},
       ],
       onFiltered(filteredItems) {
         // Trigger pagination to update the number of buttons/pages due to filtering

@@ -47,6 +47,12 @@ export default {
       commit('setAbility', ability)
       return userData
     },
+    loginEmployeeOrder: async ({ commit, dispatch }, payload) => {
+      commit('setIsLoading', true)
+      const [response, error] = await axios.post('/login', payload)
+      commit('setIsLoading', false)
+      return [response, error]
+    },
     login: async ({ commit, dispatch }, payload) => {
       commit('setIsLoading', true)
       const [response, error] = await axios.post('/login', payload)

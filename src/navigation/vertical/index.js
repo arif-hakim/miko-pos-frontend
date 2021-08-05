@@ -54,7 +54,7 @@ const menu = [
   },
   {
     title: 'Tax',
-    icon: 'ShoppingCartIcon',
+    icon: 'DollarSignIcon',
     route: 'tax',
     tagVariant: 'light-warning',
   },

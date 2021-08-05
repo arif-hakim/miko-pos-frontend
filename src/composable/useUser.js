@@ -5,11 +5,13 @@ export const useUser = () => {
     setCurrentUser,
     login,
     loginByToken,
+    loginEmployeeOrder,
     register,
   } = useNamespacedActions('user', [
     'setCurrentUser',
     'login',
     'loginByToken',
+    'loginEmployeeOrder',
     'register',
   ])
 
@@ -41,6 +43,7 @@ export const useUser = () => {
     // actions
     setCurrentUser,
     loginByToken,
+    loginEmployeeOrder,
     login,
     register,
   }

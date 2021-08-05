@@ -16,13 +16,18 @@
       <template #modal-header>
         <div class="w-100 d-flex justify-content-between">
             <b>Customer Identity</b>
-            <b-link>
+            <b-link
+              @click="() => {
+                openEmployeeOrderModal()
+                closeIdentityModal()
+              }"
+            >
               or sign in as employee
             </b-link>
         </div>
       </template>
       <b-form-group
-        class="border-top pt-1"
+        class="pt-1"
         label="Customer Name"
         label-for="customer-name-item"
       >
@@ -30,6 +35,18 @@
           id="customer-name-item"
           required
           v-model="customerName"
+        >
+        </b-form-input>
+      </b-form-group>
+      <b-form-group
+        class="pt-1"
+        label="Table Number"
+        label-for="customer-name-item"
+      >
+        <b-form-input
+          id="customer-name-item"
+          required
+          v-model="tableNumber"
         >
         </b-form-input>
       </b-form-group>
@@ -44,10 +61,116 @@
           <b-button
             variant="primary"
             class="ml-2"
-            :disabled="!customerName"
+            :disabled="!customerName || !tableNumber"
             @click="placeOrder"
           >
             Place Order
+          </b-button>
+        </div>
+      </template>
+    </b-modal>
+    <!-- END OF MODAL -->
+    
+    <!-- MODAL EMPLOYEE NAME -->
+    <b-modal
+      centered
+      header-bg-variant="light"
+      id="modalEmployeeOrder"
+      v-model="modalEmployeeOrder"
+      ref="modal"
+    >
+      <template #modal-header>
+        <div class="w-100 d-flex justify-content-between">
+            <b>Make Order as Employee</b>
+            <b-link
+              @click="() => {
+                openIdentityModal()
+                closeEmployeeOrderModal()
+              }"
+            >
+              or make order as Customer
+            </b-link>
+        </div>
+      </template>
+      <b-form-group
+        class="pt-1"
+        label="Email"
+        label-for="customer-name-item"
+      >
+        <b-form-input
+          id="customer-name-item"
+          placeholder="Enter your account email"
+          required
+          :disabled="employee ? true : false"
+          v-model="employeeEmail"
+        >
+        </b-form-input>
+      </b-form-group>
+      <b-form-group
+        class="pt-1"
+        label="Password"
+        label-for="customer-name-item"
+      >
+        <b-form-input
+          id="customer-name-item"
+          placeholdder="Enter your account password"
+          v-model="employeePassword"
+          :disabled="employee ? true : false"
+          required
+          type="password"
+        >
+        </b-form-input>
+      </b-form-group>
+      <div v-if="employee ? true : false">
+       <hr>
+        <v-select
+          v-model="selectedBranch"
+          label="text"
+          :reduce="option => option.value"
+          placeholder="- Select a Branch -"
+          class="mb-1"
+          single
+          :options="selectBranches"
+        >
+        </v-select>
+
+        <v-select
+          v-model="selectedUnit"
+          label="text"
+          placeholder="- Select a Unit -"
+          single
+          :options="selectUnits"
+          :reduce="option => option.value"
+          :disabled="!selectedBranch ? true : false"
+        >
+        </v-select>
+      </div>
+      <template #modal-footer>
+        <div v-if="employee" 
+          class="w-100 d-flex justify-content-between"
+        >
+          <b-button
+            variant="secondary"
+            @click="closeEmployeeOrderModal"
+          >
+            Cancel
+          </b-button>
+          <b-button
+            variant="primary"
+            class="ml-2"
+            @click="placeOrderAsEmployee"
+          >
+            Place Order
+          </b-button>
+        </div>
+        <div class="w-100 d-flex justify-content-end" v-if="!employee">
+          <b-button
+            variant="primary"
+            :disabled="!employeePassword || !employeeEmail"
+            class="ml-2"
+            @click="signInAsEmployee"
+          >
+            Sign In
           </b-button>
         </div>
       </template>
@@ -167,6 +290,8 @@ import Ripple from 'vue-ripple-directive'
 import { useCart } from '@/composable/useCart' 
 import { useTransaction } from '@/composable/useTransaction' 
 import { ref, watch, computed, onMounted } from '@vue/composition-api'
+import { useUser } from '@/composable/useUser'
+import UnitVue from '@/views/unit/Unit.vue'
 
 export default {
   components: {
@@ -187,7 +312,9 @@ export default {
     const cartDropdown = ref(null)
     const { createTransaction } = useTransaction()
     const { cart, loadCart, updateCart, removeFromCart, clearCart } = useCart()
+    const { loginEmployeeOrder } = useUser()
     loadCart()
+
 
     onMounted(() => {
       cartDropdown.value.listenOnRoot('openCartDropdown', (e) => {
@@ -216,20 +343,48 @@ export default {
       }
     })
 
-    const modalAsEmployee = ref(false)
+    const modalEmployeeOrder = ref(false)
     const employeeEmail = ref('')
     const employeePassword = ref('')
-    const employeeUnitID = ref(null)
+
+    const employee = ref(null)
+    const employeeBranch = ref(null)
+    const employeeUnit = ref(null)
+
+    const selectBranches = ref([])
+    const selectedBranch = ref(null)
+    const selectUnits = ref([])
+    const selectedUnit = ref(null)
 
     const customerName = ref('')
+    const tableNumber = ref('')
     const modalIdentity = ref(false)
+    
+    const openEmployeeOrderModal = () => {
+      employee.value = null 
+      employeeUnit.value = null
+      employeeEmail.value = ''
+      employeePassword.value = ''
+      modalEmployeeOrder.value = true
+    }
+
+    const closeEmployeeOrderModal = () => {
+      employee.value = null 
+      employeeUnit.value = null
+      employeeEmail.value = ''
+      employeePassword.value = ''
+      modalEmployeeOrder.value = false
+    }
+
     const openIdentityModal = () => {
       customerName.value = '' 
+      tableNumber.value = '' 
       modalIdentity.value = true
     }
 
     const closeIdentityModal = () => {
       customerName.value = '' 
+      tableNumber.value = '' 
       modalIdentity.value = false
     }
 
@@ -237,9 +392,29 @@ export default {
       if (error && error.message) return root.$notify.error(error.message)
       else if (response) {
         root.$notify.success(response.message)
-        closeIdentityModal()
+        if (modalEmployeeOrder.value) closeEmployeeOrderModal()
+        if (modalIdentity.value) closeIdentityModal()
         clearCart()
       }
+    }
+
+    const placeOrderAsEmployee = async () => {
+      const items = cart.value.map(item => {
+        return {
+          product_id: item.id,
+          quantity: item.qty,
+          note: item.note,
+        }
+      })
+
+      const payload = {
+        employee_id: employee.value.id,
+        employee_unit_id: selectedUnit.value,
+        items
+      }
+
+      const [response, error] = await createTransaction(payload)
+      submitHandler(response, error)
     }
 
     const placeOrder = async () => {
@@ -253,6 +428,7 @@ export default {
 
       const payload = {
         customer_name: customerName.value,
+        table_number: tableNumber.value,
         items
       }
       
@@ -260,20 +436,70 @@ export default {
       submitHandler(response, error)
     }
 
+    const signInAsEmployee = async () => {
+      const payload = {
+        email: employeeEmail.value,
+        password: employeePassword.value,
+      }
+
+      const [response, error] = await loginEmployeeOrder(payload)
+      if (error) root.$notify.error(error.message)
+      if (response) root.$notify.success(response.message)
+      employee.value = response.data.user
+    }
+
+    watch(employee, x => {
+      if (!x) return;
+      selectBranches.value = x.company.branches.map(branch => {
+        return {
+          value: branch.id,
+          text: branch.name
+        }
+      })
+    })
+
+    watch(selectedBranch, x => {
+      if (!employee) return;
+      selectedUnit.value = null
+      selectUnits.value = employee.value.company.units.filter(unit => unit.branch_id === x).map(unit => {
+        return {
+          value: unit.id,
+          text: unit.name
+        }
+      })
+    })
+
     return {
-      modalAsEmployee,
+      // employee order
+      placeOrderAsEmployee,
+      employee,
+      employeeUnit,
+      employeeBranch,
       employeeEmail,
       employeePassword,
-      employeeUnitID,
+      openEmployeeOrderModal,
+      closeEmployeeOrderModal,
+      modalEmployeeOrder,
+      signInAsEmployee,
+      selectBranches,
+      selectedBranch,
+      selectUnits,
+      selectedUnit,
+
+      // identity 
+      customerName,
+      tableNumber,
+      modalIdentity,
+      openIdentityModal,
+      closeIdentityModal,
+      
+      // others
       cartToggler,
       cartDropdown,
       placeOrder,
       totalAmount,
       updateSubtotal,
-      customerName,
-      modalIdentity,
-      openIdentityModal,
-      closeIdentityModal,
+      
       ...useCart(),
     }
   },

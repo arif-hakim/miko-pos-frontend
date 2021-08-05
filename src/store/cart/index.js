@@ -24,7 +24,7 @@ export default {
       if (thisItemInCart) {
         cart = cart.map(x => {
           if (x.id == payload.id) {
-            x.qty += payload.qty
+            x.qty = payload.qty
             x.subtotal = x.price * x.qty
             x.note = payload.note
           }

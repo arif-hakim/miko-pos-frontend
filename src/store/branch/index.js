@@ -40,6 +40,7 @@ export default {
     },
     deleteBranch: async ({ commit, dispatch }, id) => {
       const [response, error] = await axios.delete(`/branch/${id}`)
+      if (response) dispatch('fetchBranches')
       return [response, error]
     },
     setActiveBranch: async ({ commit, dispatch }, payload) => {

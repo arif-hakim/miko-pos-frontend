@@ -31,9 +31,19 @@
         </b-col>
         <b-col cols="12">{{ modalData.description }}</b-col>
         <b-col cols="8" offset="2" class="d-flex mt-1 py-1">
-            <b-button @click="() => modalData.qty == 0 ? '' : --modalData.qty" variant="danger">-</b-button>
-            <b-input v-model="modalData.qty" min="0" class="mx-2 text-center"></b-input>
-            <b-button @click="() => ++modalData.qty" variant="primary">+</b-button>
+            <b-button @click="() => modalData.qty == 1 ? '' : --modalData.qty" variant="danger">
+              <feather-icon
+                icon="MinusIcon"
+                size="14"
+              />
+            </b-button>
+            <b-input v-model="modalData.qty" min="1" class="mx-2 text-center"></b-input>
+            <b-button @click="() => ++modalData.qty" variant="primary">
+              <feather-icon
+                icon="PlusIcon"
+                size="15"
+              />
+            </b-button>
         </b-col>
       </b-row>
       <b-form-group
@@ -75,7 +85,7 @@
           <div class="w-100">
             <div class="view-options d-flex justify-content-between">
               <!-- Sort Button -->
-              <b-dropdown
+              <!-- <b-dropdown
                 v-ripple.400="'rgba(113, 102, 240, 0.15)'"
                 :text="sortBy.text"
                 right
@@ -88,10 +98,10 @@
                 >
                   {{ sortOption.text }}
                 </b-dropdown-item>
-              </b-dropdown>
+              </b-dropdown> -->
 
               <!-- Item View Radio Button Group  -->
-              <b-form-radio-group
+              <!-- <b-form-radio-group
                 v-model="itemView"
                 class="ml-1 list item-view-radio-group"
                 buttons
@@ -108,7 +118,7 @@
                     size="18"
                   />
                 </b-form-radio>
-              </b-form-radio-group>
+              </b-form-radio-group> -->
             </div>
           </div>
         </div>
@@ -144,8 +154,9 @@
       <b-card
         v-for="product in products"
         :key="product.id"
-        class="ecommerce-card"
+        class="ecommerce-card product-card"
         no-body
+        @click="openOrderModal(product)"
       >
         <div class="item-img justify-content-center">
             <b-img
@@ -172,7 +183,8 @@
               </b-col>
               <b-col cols="6 text-right">
                 <h4 class="item-price">
-                  <vue-numeric read-only separator="." v-model="product.selling_price"></vue-numeric>
+                  <vue-numeric v-if="product.stock > 0" read-only separator="." v-model="product.selling_price"></vue-numeric>
+                  <b-badge variant="danger" v-else style="font-size:13px;">Sold Out</b-badge>
                 </h4>
               </b-col>
               <b-col cols="12">
@@ -189,7 +201,7 @@
           <div class="item-wrapper">
             <div class="item-cost">
               <h4 class="item-price">
-                ${{ product.selling_price }}
+                {{ product.selling_price }}
               </h4>
             </div>
           </div>
@@ -206,7 +218,7 @@
             />
             <span>Wishlist</span>
           </b-button> -->
-          <b-button
+          <!-- <b-button
             variant="primary"
             tag="a"
             class="btn-cart"
@@ -217,7 +229,7 @@
               class="mr-50"
             />
             <span>Add to Cart</span>
-          </b-button>
+          </b-button> -->
         </div>
       </b-card>
     </section>
@@ -304,7 +316,7 @@ export default {
     const modalOrder = ref(false)
 
     const { fetchProducts, products } = useProduct()
-    const { cart, addToCart } = useCart()
+    const { cart, addToCart, removeFromCart } = useCart()
 
     onMounted(async () => {
       await fetchProducts()
@@ -323,15 +335,24 @@ export default {
     })
 
     const openOrderModal = (product) => {
-      modalData.id = product.id
-      modalData.name = product.name
-      modalData.price = product.selling_price
-      modalData.description = product.description
-      modalData.subtotal = product.selling_price * modalData.qty
-      modalData.note = product.note
-      modalData.picture = product.picture
-      modalData.qty = 1
-      modalData.note = ''
+      if (product.stock < 1) return
+      let item = product, qty, note
+
+      let itemInCart = cart.value.filter(x => x.id == item.id)
+      if (itemInCart.length > 0) {
+        qty = itemInCart[0].qty
+        note = itemInCart[0].note
+      }
+
+      modalData.id = item.id
+      modalData.name = item.name
+      modalData.price = item.selling_price
+      modalData.description = item.description
+      modalData.subtotal = item.selling_price * modalData.qty
+      modalData.note = item.note
+      modalData.picture = item.picture
+      modalData.qty = qty ? qty : 1
+      modalData.note = note ? note : ''
       modalOrder.value = true
     }
 
@@ -339,20 +360,19 @@ export default {
       const response = await addToCart(modalData)
       if (response) {
         root.$notify.success('Item added to cart!')
-        root.$emit('openCartDropdown')
       }
       modalOrder.value = false
     }
 
     const closeOrderModal = () => {
-      modalData.id = null
-      modalData.name = null
-      modalData.price = 0
-      modalData.description = null
-      modalData.note = null
-      modalData.picture = null
-      modalData.qty = 0
-      modalData.note = ''
+      // modalData.id = null
+      // modalData.name = null
+      // modalData.price = 0
+      // modalData.description = null
+      // modalData.note = null
+      // modalData.picture = null
+      // modalData.qty = 0
+      // modalData.note = ''
       modalOrder.value = false 
     }
 
@@ -400,6 +420,10 @@ export default {
 </style>
 
 <style lang="scss" scoped>
+
+.product-card {
+  cursor: pointer;
+}
 
 .item-view-radio-group ::v-deep {
   .btn {

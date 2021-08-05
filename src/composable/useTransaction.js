@@ -10,6 +10,7 @@ export const useTransaction = () => {
     updateTransactionStock,
     deleteTransaction,
     updateTransactionStatus,
+    setDateFilter,
   } = useNamespacedActions('transaction', [
     'fetchTransactions',
     'fetchTransactionStockHistories',
@@ -19,17 +20,20 @@ export const useTransaction = () => {
     'updateTransactionStock',
     'deleteTransaction',
     'updateTransactionStatus',
+    'setDateFilter',
   ])
 
   const {
     transaction,
     transactions,
     transactionStockHistories,
+    dateFilter,
     isLoading,
   } = useNamespacedState('transaction', [
     'transaction',
     'transactions',
     'transactionStockHistories',
+    'dateFilter',
     'isLoading',
   ])
 
@@ -39,6 +43,7 @@ export const useTransaction = () => {
     transaction,
     transactions,
     transactionStockHistories,
+    dateFilter,
     isLoading,
 
     // actions
@@ -50,5 +55,6 @@ export const useTransaction = () => {
     updateTransactionStock,
     deleteTransaction,
     updateTransactionStatus,
+    setDateFilter,
   }
 }

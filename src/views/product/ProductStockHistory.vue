@@ -30,6 +30,23 @@
       </b-col>
 
       <b-col cols="12">
+        <b-card>
+          <b-row class="align-items-center" v-if="product">
+              <div>
+                <img :src="product.picture" :alt="product.name" width="100" class="mr-2 rounded">
+              </div>
+              <div>
+                <p class="mr-2 mb-0"><b>Name :</b> {{ product.name }}</p>
+                <p class="mr-2 mb-0"><b>Code :</b> {{ product.code }}</p>
+                <p class="mr-2 mb-0"><b>Category :</b> {{ product.category.name }}</p>
+              </div>
+              <div>
+                <p class="mr-2 mb-0"><b>Unit Measurement :</b> {{ product.unit_measurement }}</p>
+                <p class="mr-2 mb-0"><b>Description :</b> {{ product.description }}</p>
+                <p class="mr-2 mb-0"><b>Current Stock :</b> {{ product.stock }} {{ product.unit_measurement }}</p>
+              </div>
+          </b-row>
+        </b-card>
         <b-table
           style="min-height:200px;"
           hover
@@ -60,9 +77,11 @@
           </template>
           <template #cell(description)="data">
             {{ data.item.description || '-' }}
+            <br>
+            <b-badge style="font-size:10px;" variant="primary">{{ data.item.source ? `${data.item.source.branch.name} - ${data.item.source.name}` : '' }}</b-badge>
           </template>
           <template #cell(from)="data">
-            {{ data.item.source || '-' }}
+            {{ data.item.from || '-' }}
           </template>
         </b-table>
       </b-col>
@@ -114,12 +133,13 @@ export default {
   },
   setup(props, { root }) {
     const { id } = root.$route.params
-    const { fetchProductStockHistories, productStockHistories } = useProduct()
+    const { fetchProductStockHistories, fetchProductByID, productStockHistories } = useProduct()
     const { activeUnit } = useUnit()
     const totalRows = ref(0)
 
     onMounted(async () => {
       await fetchProductStockHistories(id)
+      await fetchProductByID(id)
       totalRows.value = productStockHistories.value.length
     })
 
@@ -150,7 +170,9 @@ export default {
         content: '',
       },
       fields: [
+        { key: 'from', label: 'From' },
         { key: 'changes', label: 'Changes' },
+        { key: 'to', label: 'To' },
         { key: 'description', label: 'Description' },
         { key: 'date', label: 'Date' },
         // { key: 'from', label: 'From' },

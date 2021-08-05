@@ -4,19 +4,18 @@
       Copyright © {{ new Date().getFullYear() }}
       <b-link
         class="ml-25"
-        href="https://1.envato.market/pixinvent_portfolio"
-        target="_blank"
+        href="#"
       >Arif Rachman H</b-link>
       <span class="d-none d-sm-inline-block">. All rights reserved</span>
     </span>
 
-    <span class="float-md-right d-none d-md-block">Hand-crafted &amp; Made with
+    <!-- <span class="float-md-right d-none d-md-block">Hand-crafted &amp; Made with
       <feather-icon
         icon="HeartIcon"
         size="21"
         class="text-danger stroke-current"
       />
-    </span>
+    </span> -->
   </p>
 </template>
 

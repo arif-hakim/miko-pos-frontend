@@ -11,17 +11,7 @@ export default [
     name: 'order',
     component: () => import('@/views/order/FormOrder.vue'),
     meta: {
-      pageTitle: 'Create New Order',
       contentClass: 'ecommerce-application',
-      breadcrumb: [
-        {
-          text: 'Order',
-        },
-        {
-          text: 'Create',
-          active: true,
-        },
-      ],
     },
   },
   {
