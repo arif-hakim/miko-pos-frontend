@@ -9,6 +9,21 @@
           label="Name"
           label-for="v-company-name"
         >
+          <v-select
+            v-model="input.branch_id"
+            label="text"
+            :reduce="option => option.value"
+            placeholder="- Select a Branch -"
+            class="mb-1"
+            single
+            :options="selectBranches"
+          >
+          </v-select>
+        </b-form-group>
+        <b-form-group
+          label="Name"
+          label-for="v-company-name"
+        >
           <b-form-input
             id="v-company-name"
             v-model="input.name"
@@ -34,18 +49,21 @@
 <script>
 
 import { useUnit } from '@/composable/useUnit'
+import { useBranch } from '@/composable/useBranch'
 import { ref, onMounted, reactive } from '@vue/composition-api'
 
 export default {
   components: {
   },
   setup(props, { root }) {
-    const { activeUnit } = useUnit()
+    const { createUnit, unit, fetchUnitByID, updateUnit, activeUnit } = useUnit()
+    const { branches, fetchBranches } = useBranch()
     const { id: unit_id } = activeUnit
-    const { createUnit, unit, fetchUnitByID, updateUnit } = useUnit()
+    const selectBranches = ref([])
     
     const input = reactive({
       id: null,
+      branch_id: null,
       name: '',
     })
 
@@ -55,6 +73,13 @@ export default {
         input.id = unit.value.id
         input.name = unit.value.name
       }
+      await fetchBranches()
+      selectBranches.value = branches.value.map(x => {
+        return {
+          value: x.id,
+          text: x.name,
+        }
+      })
     })
 
     const submitHandler = (response, error) => {
@@ -67,7 +92,7 @@ export default {
       const payload = {
         ...input,
       }
-      
+
       if (unit_id) {
         const [response, error] = await updateUnit(payload)
         submitHandler(response, error)
@@ -79,11 +104,13 @@ export default {
     }
 
     return {
+      selectBranches,
       unit_id,
       input,
       save,
       getTitle: () => unit_id ? 'Edit' : 'Create',
       ...useUnit(),
+      ...useBranch(),
     }
   },
 }

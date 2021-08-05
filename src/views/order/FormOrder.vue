@@ -336,7 +336,8 @@ export default {
 
     const openOrderModal = (product) => {
       if (product.stock < 1) return
-      let item = product, qty, note
+      let item = Object.assign({}, product) 
+      let qty, note
 
       let itemInCart = cart.value.filter(x => x.id == item.id)
       if (itemInCart.length > 0) {

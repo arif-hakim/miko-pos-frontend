@@ -61,25 +61,38 @@
                   md="6"
                   class="mb-lg-1 pl-0"
                 >
-                  <b-row class="mb-1">
+                  <b-row class="mb-1" v-if="transaction.customer_name">
                     <b-col cols="12" md="4">Customer Name</b-col>
                     <b-col cols="12" md="8">{{ transaction.customer_name }}</b-col>
+                  </b-row>
+                  <b-row class="mb-1" v-if="transaction.employee">
+                    <b-col cols="12" md="4">Employee Name</b-col>
+                    <b-col cols="12" md="8">{{ transaction.employee.firstname }} {{ transaction.employee.lastname }}</b-col>
+                  </b-row>
+                  <b-row class="mb-1" v-if="transaction.employee">
+                    <b-col cols="12" md="4">Sent to</b-col>
+                    <b-col cols="12" md="8">
+                      <b-badge variant="primary">{{ transaction.employee_unit.branch.name }} - {{ transaction.employee_unit.name }}</b-badge>
+                    </b-col>
                   </b-row>
                   <b-row class="mb-1">
                     <b-col cols="12" md="4">Status</b-col>
                     <b-col cols="12" md="8">
-                      <b-badge variant="primary" v-if="transaction.payment_status == 'Unpaid'">{{ transaction.payment_status }}</b-badge>
+                      <b-badge variant="primary" v-if="transaction.payment_status == 'Internal'">{{ transaction.payment_status }}</b-badge>
+                      <b-badge variant="warning" v-if="transaction.payment_status == 'Unpaid'">{{ transaction.payment_status }}</b-badge>
                       <b-badge variant="success" v-if="transaction.payment_status == 'Paid'">{{ transaction.payment_status }}</b-badge>
                       <b-badge variant="danger" v-if="transaction.payment_status == 'Canceled'">{{ transaction.payment_status }}</b-badge>
                     </b-col>
                   </b-row>
-                  <!-- <b-row class="mb-1" >
-                      <b-badge variant="primary" v-if="transaction.payment_status == 'Paid'">{{ transaction.payment_status }}</b-badge>
-                    </b-col>
-                  </b-row> -->
                   <b-row class="mb-1">
                     <b-col cols="12" md="4">Date</b-col>
                     <b-col cols="12" md="8">{{ moment(transaction.created_at).format('DD/MM/YY hh:mm A') }}</b-col>
+                  </b-row>
+                  <b-row class="mb-1" v-if="transaction.paid">
+                    <b-col cols="12" md="4">Handled By</b-col>
+                    <b-col cols="12" md="8">
+                      {{ transaction.officer_name }}
+                    </b-col>
                   </b-row>
                 </b-col>
                 <b-col
@@ -112,6 +125,23 @@
                       </p>
                       <p class="invoice-total-amount">
                         <vue-numeric read-only separator="." v-model="transaction.grand_total"></vue-numeric>
+                      </p>
+                    </div>
+                    <div class="invoice-total-item" v-if="transaction.paid">
+                      <p class="invoice-total-title">
+                        Paid:
+                      </p>
+                      <p class="invoice-total-amount">
+                        <vue-numeric read-only separator="." v-model="transaction.paid"></vue-numeric>
+                      </p>
+                    </div>
+                    <hr v-if="transaction.change_value">
+                    <div class="invoice-total-item" v-if="transaction.change_value">
+                      <p class="invoice-total-title">
+                        Change:
+                      </p>
+                      <p class="invoice-total-amount">
+                        <vue-numeric read-only separator="." v-model="transaction.change_value"></vue-numeric>
                       </p>
                     </div>
                   </div>
@@ -172,7 +202,7 @@
                         <vue-numeric separator="." v-model="data.item.total_price" read-only></vue-numeric>
                       </template>
                       <template #cell(note)="data">
-                        <span>{{ data.item.description }}</span>
+                        <span>{{ data.item.note }}</span>
                       </template>
                     </b-table>
                     <b-row>
