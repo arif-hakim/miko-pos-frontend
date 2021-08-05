@@ -69,9 +69,6 @@
           <template #cell(created_at)="data">
             {{ moment(data.created_at).format('DD/MM/YYYY') }}
           </template>
-          <template #cell(no)="data">
-            {{ ++data.index }}
-          </template>
           <template #cell(action)="data">
             <router-link
               tag="button"
@@ -184,9 +181,6 @@ export default {
         content: '',
       },
       fields: [
-        {
-          key: 'no', label: '#',
-        },
         { key: 'code', label: 'Code', sortable: true },
         { key: 'name', label: 'Name', sortable: true },
         { key: 'created_at', label: 'Created At', sortable: true },
