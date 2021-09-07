@@ -16,6 +16,7 @@ import category from './routes/category'
 import product from './routes/product'
 import material from './routes/material'
 import materialCategory from './routes/material-category'
+import conversion from './routes/conversion'
 import user from './routes/user'
 import branch from './routes/branch'
 import unit from './routes/unit'
@@ -87,6 +88,7 @@ const router = new VueRouter({
     ...unit,
     ...apps,
     ...company,
+    ...conversion,
     {
       path: '*',
       redirect: 'error-404',

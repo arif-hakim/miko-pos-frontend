@@ -289,8 +289,8 @@ import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 import Ripple from 'vue-ripple-directive'
 import { useCart } from '@/composable/useCart' 
 import { useTransaction } from '@/composable/useTransaction' 
-import { ref, watch, computed, onMounted } from '@vue/composition-api'
 import { useUser } from '@/composable/useUser'
+import { ref, watch, computed, onMounted } from '@vue/composition-api'
 import UnitVue from '@/views/unit/Unit.vue'
 
 export default {

@@ -98,6 +98,12 @@ const menu = [
         route: 'material-category',
         tagVariant: 'light-warning',
       },
+      {
+        title: 'Conversion',
+        icon: 'GridIcon',
+        route: 'conversion',
+        tagVariant: 'light-warning',
+      },
     ]
   },
 ]

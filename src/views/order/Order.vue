@@ -3,7 +3,7 @@
     <b-card>
       <b-col
         cols="12"
-        md="4"
+        class="d-flex"
       >
         <!-- <b-form-datepicker 
           id="example-datepicker" 
@@ -23,6 +23,11 @@
             v-model="dateFilter"
         >
         </date-range-picker>
+        <b-btn
+          variant="primary"
+          class="ml-auto"
+          @click="doDownloadSalesReport"
+        >Sales Report</b-btn>
       </b-col>
     </b-card>
     <b-row>
@@ -133,7 +138,7 @@
               </div>
             </template>
             <template #cell(date)="data">
-              {{ moment(data.item.created_at).format('DD MMM YYYY hh:mm') }} 
+              {{ moment(data.item.created_at).format('DD MMM YYYY HH:mm') }} 
             </template>
             <template #cell(no)="data">
               {{ data.item.table_number ? data.item.table_number : '-'  }} 
@@ -322,7 +327,7 @@ export default {
     flatPickr,
   },
   setup(props, { root }) {
-    const { fetchTransactions, dateFilter, setDateFilter, transactions, deleteTransaction, updateTransactionStatus } = useTransaction()
+    const { fetchTransactions, dateFilter, downloadSalesReport, setDateFilter, transactions, deleteTransaction, updateTransactionStatus } = useTransaction()
     const { activeUnit } = useUnit()
     const totalRows = ref(0)
     const profit = ref(0)
@@ -348,6 +353,25 @@ export default {
     const submitHandler = (response, error) => {
       if (error) return root.$notify.error(error.message)
       root.$notify.success(response.message)
+    }
+
+
+
+    const doDownloadSalesReport = async () => {
+      const payload = {
+        from: dateFilter.value.startDate,
+        to: dateFilter.value.endDate,
+        unit_id: activeUnit.value.id,
+      }
+      const [response, error] = await downloadSalesReport(payload)
+      if (response) {
+        const blob = new Blob([response], { type: 'application/pdf' })
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.download = 'Sales'
+        link.click()
+        URL.revokeObjectURL(link.href)
+      }
     }
 
     const doUpdate = async (id, payment_status) => {
@@ -401,6 +425,7 @@ export default {
     }
 
     return {
+      doDownloadSalesReport,
       profit,
       dateFilterChanges,
       dateFilter,

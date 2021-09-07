@@ -68,5 +68,17 @@ export default {
       if (response) dispatch('fetchTransactions')
       return [response, error]
     },
+    downloadSalesReport: async ({ commit, dispatch }, payload) => {
+      const { from, to, unit_id } = payload
+      const [response, error] = await axios.get(`/report/sales`, { 
+        params: {
+          from,
+          to,
+          unit_id,
+        },
+        responseType: 'blob'
+      })
+      return [response, error]
+    },
   },
 }

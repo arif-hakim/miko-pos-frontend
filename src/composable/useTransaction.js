@@ -11,6 +11,7 @@ export const useTransaction = () => {
     deleteTransaction,
     updateTransactionStatus,
     setDateFilter,
+    downloadSalesReport,
   } = useNamespacedActions('transaction', [
     'fetchTransactions',
     'fetchTransactionStockHistories',
@@ -21,6 +22,7 @@ export const useTransaction = () => {
     'deleteTransaction',
     'updateTransactionStatus',
     'setDateFilter',
+    'downloadSalesReport',
   ])
 
   const {
@@ -56,5 +58,6 @@ export const useTransaction = () => {
     deleteTransaction,
     updateTransactionStatus,
     setDateFilter,
+    downloadSalesReport,
   }
 }

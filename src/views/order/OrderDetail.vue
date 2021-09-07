@@ -86,7 +86,7 @@
                   </b-row>
                   <b-row class="mb-1">
                     <b-col cols="12" md="4">Date</b-col>
-                    <b-col cols="12" md="8">{{ moment(transaction.created_at).format('DD/MM/YY hh:mm A') }}</b-col>
+                    <b-col cols="12" md="8">{{ moment(transaction.created_at).format('DD MMMM YYYY HH:mm') }}</b-col>
                   </b-row>
                   <b-row class="mb-1" v-if="transaction.paid">
                     <b-col cols="12" md="4">Handled By</b-col>
@@ -101,7 +101,7 @@
                   order="1"
                   order-md="2"
                 >
-                  <div class="invoice-total-wrapper border rounded p-1">
+                  <div class="invoice-total-wrapper border rounded p-1" style="max-width:250px;">
                     <div class="invoice-total-item">
                       <p class="invoice-total-title">
                         Subtotal:
@@ -112,10 +112,10 @@
                     </div>
                     <div class="invoice-total-item">
                       <p class="invoice-total-title">
-                        Tax:
+                        Tax ({{ transaction.tax }}%):
                       </p>
                       <p class="invoice-total-amount">
-                        {{ transaction.tax }}%
+                        {{ toThousands(transaction.transaction_value * transaction.tax / 100) }}
                       </p>
                     </div>
                     <hr class="my-50">
@@ -177,7 +177,7 @@
                       :sort-direction="sortDirection"
                       :filter="filter"
                       :filter-included-fields="filterOn"
-                      @filtered="onFiltered"
+                      @filtered="onFiltered" 
                       show-empty
                     >
                       <template #empty>
@@ -261,6 +261,7 @@ import Ripple from 'vue-ripple-directive'
 import vSelect from 'vue-select'
 import flatPickr from 'vue-flatpickr-component'
 import moment from 'moment'
+import { toThousands } from '@/libs/formatter'
 
 export default {
   props: [
@@ -287,6 +288,7 @@ export default {
 
     return {
       ...useTransaction(),
+      toThousands,
       totalRows,
       moment,
       perPage: 5,

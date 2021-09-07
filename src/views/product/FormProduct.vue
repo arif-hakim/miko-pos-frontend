@@ -73,13 +73,27 @@
           for="extension"
           class="mt-1"
           label="Product Picture"
+          label-for="v-Product-selling-price"
         >
           <b-form-file
-            id="extension"
+            id="picture"
             accept=".jpg, .png, .gif"
             v-model="input.picture"
           />
         </b-form-group>
+
+        <hr class="my-2">
+        <b-form-group
+          label="Ingredients (optional)"
+          label-for="v-product"
+        >
+          <vue-repeater
+            class="border rounded"
+            v-model="fieldsRepeater"
+            :key="repeaterData"
+          ></vue-repeater>
+        </b-form-group>
+
         <div class="text-center">
           <b-button
             :disabled="isLoading"
@@ -102,7 +116,7 @@
 import { useProduct } from '@/composable/useProduct'
 import { useUnit } from '@/composable/useUnit'
 import { useCategory } from '@/composable/useCategory'
-import { ref, onMounted, reactive } from '@vue/composition-api'
+import { ref, onMounted, reactive, watch } from '@vue/composition-api'
 
 export default {
   components: {
@@ -113,6 +127,19 @@ export default {
     const { fetchCategories } = useCategory()
     const { activeUnit } = useUnit()
     
+    const fieldsRepeater = ref([
+      {
+        name: 'FormRecipe',
+        value: {}
+      },
+    ])
+
+    const repeaterData = ref('')
+
+    watch(fieldsRepeater, () => {
+      repeaterData.value = JSON.stringify(fieldsRepeater.value.map(x => x.value))
+    })
+    
     const input = reactive({
       id: null,
       name: '',
@@ -120,8 +147,8 @@ export default {
       category_id: '',
       unit_measurement: '',
       description: '',
-      base_price: '',
-      selling_price: null,
+      base_price: 0,
+      selling_price: 0,
       picture: null,
     })
 
@@ -137,6 +164,15 @@ export default {
         input.description = product.value.description
         input.base_price = product.value.base_price
         input.selling_price = product.value.selling_price
+        fieldsRepeater.value = product.value.recipe.map(x => {
+          return {
+            name: 'FormRecipe',
+            value: {
+              raw_material_id: x.raw_material_id,
+              amount: x.amount,
+            }
+          }
+        })
       }
     })
 
@@ -147,8 +183,17 @@ export default {
     }
     
     const save = async () => {
+      
+      const recipe = fieldsRepeater.value.filter(x => Object.keys(x.value).length).map(x => {
+        return {
+          raw_material_id: x.value.raw_material_id,
+          amount: x.value.amount
+        }
+      })
+
       const payload = {
-        ...input,
+          ...input,
+        recipe: JSON.stringify(recipe),
         unit_id: activeUnit.value.id
       }
 
@@ -163,6 +208,8 @@ export default {
     }
 
     return {
+      repeaterData,
+      fieldsRepeater,
       product_id,
       input,
       save,
@@ -173,3 +220,8 @@ export default {
   },
 }
 </script>
+<style lang="css">
+  .repeater > .repeater-block {
+    padding: 0 !important;
+  }
+</style>

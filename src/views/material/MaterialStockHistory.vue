@@ -45,6 +45,12 @@
                 <p class="mr-2 mb-0"><b>Description :</b> {{ material.description }}</p>
                 <p class="mr-2 mb-0"><b>Current Stock :</b> {{ material.stock }} {{ material.unit_measurement }}</p>
               </div>
+              <div>
+                <p class="mr-2 mb-0"><b>Conversion :</b> {{ material.conversion.name || '-' }}</p>
+                <p class="mr-2 mb-0" v-if="material.conversion.operator == '*'"><b>Equation :</b> 1 {{ material.conversion.start_unit_measurement }} = {{ material.conversion.amount }} {{ material.conversion.end_unit_measurement }}</p>
+                <p class="mr-2 mb-0" v-else-if="material.conversion.operator == '/'"><b>Equation :</b> 1 {{ material.conversion.start_unit_measurement }} = {{ 1 / material.conversion.amount }} {{ material.conversion.end_unit_measurement }}</p>
+                <p class="mr-2 mb-0">&nbsp;</p>
+              </div>
           </b-row>
         </b-card>
         <b-table
@@ -73,16 +79,16 @@
             {{ moment(data.item.created_at).format('DD/MM/YY h:mm a') }}
           </template>
           <template #cell(changes)="data">
-            <b-badge :variant="data.item.changes <= 0 ? 'danger' : 'success'"> {{ data.item.changes <= 0 ? data.item.changes : `+${data.item.changes}`  }} </b-badge>
+            <b-badge :variant="data.item.changes <= 0 ? 'danger' : 'success'"> {{ data.item.changes <= 0 ? data.item.changes : `+${data.item.changes}`  }} {{ material.unit_measurement }} </b-badge>
           </template>
           <template #cell(description)="data">
             {{ data.item.description || '-' }}
           </template>
           <template #cell(from)="data">
-            {{ data.item.from || '-' }}
+            {{ `${data.item.from} ${material.unit_measurement}` || '-' }}
           </template>
           <template #cell(to)="data">
-            {{ data.item.to || '-' }}
+            {{ `${data.item.to} ${material.unit_measurement}` || '-' }}
           </template>
         </b-table>
       </b-col>
@@ -128,6 +134,7 @@ import moment from 'moment'
 import { useMaterial } from '@/composable/useMaterial'
 import { useUnit } from '@/composable/useUnit'
 import { ref, onMounted } from '@vue/composition-api'
+import { toThousands } from '@/libs/formatter'
 
 export default {
   components: {
@@ -152,6 +159,7 @@ export default {
     return {
       totalRows,
       moment,
+      toThousands,
       ...useMaterial(),
     }
   },

@@ -25,9 +25,15 @@ import '@/libs/tour'
 // Axios Mock Adapter
 import '@/@fake-db/db'
 
+import VueRepeater from 'vue-repeater'
+import '@/assets/scss/vue-repeater.css'
+import FormRecipe from '@/views/product/FormRecipe'
+
 // BSV Plugin Registration
 Vue.use(ToastPlugin)
 Vue.use(ModalPlugin)
+Vue.component('vue-repeater', VueRepeater)
+Vue.component('FormRecipe', FormRecipe)
 
 // Composition API
 Vue.use(VueCompositionAPI)

@@ -1,17 +1,17 @@
 <template>
   <div>
-    <FormOrder v-if="activeUnit"></FormOrder>
+    <FormOrderCustomer v-if="activeUnit"></FormOrderCustomer>
   </div>
 </template>
 <script>
 
 import { defineComponent, onMounted } from '@vue/composition-api'
-import FormOrder from './FormOrder'
+import FormOrderCustomer from './FormOrderCustomer'
 import { useUnit } from '@/composable/useUnit'
 
 export default defineComponent({
   components: {
-    FormOrder,
+    FormOrderCustomer,
   },
   setup(props, { root }) {
     const { fetchUnitByOrderToken, activeUnit } = useUnit()

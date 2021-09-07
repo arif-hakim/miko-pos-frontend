@@ -1,82 +1,176 @@
 <template>
   <div style="height: inherit">
-    <!-- MODAL ORDER ITEM -->
+    <!-- MODAL CUSTOMER NAME -->
     <b-modal
       centered
       header-bg-variant="light"
-      id="modalOrder"
-      v-model="modalOrder"
+      id="modalIdentity"
+      v-model="modalIdentity"
       ref="modal"
-      title="Add To Cart"
     >
       <template #modal-header>
-        <div class="w-100">
-            <b>Add To Cart</b>
+        <div class="w-100 d-flex justify-content-between">
+            <b>Customer Identity</b>
+            <b-link
+              @click="() => {
+                openEmployeeOrderModal()
+                closeIdentityModal()
+              }"
+            >
+              or sign in as employee
+            </b-link>
         </div>
       </template>
-      <div class="text-center">
-        <b-img
-          :src="modalData.picture"
-          width="300"
-        ></b-img>
-      </div>
-      <b-row class="mb-1">
-        <b-col cols="6">
-          <h4 class="text-primary">{{ modalData.name }}</h4>
-        </b-col>
-        <b-col cols="6" class="text-right">
-          <h4 class="text-primary">
-            <vue-numeric read-only separator="." v-model="modalData.subtotal"></vue-numeric>
-          </h4>
-        </b-col>
-        <b-col cols="12">{{ modalData.description }}</b-col>
-        <b-col cols="8" offset="2" class="d-flex mt-1 py-1">
-            <b-button @click="() => modalData.qty == 1 ? '' : --modalData.qty" variant="danger">
-              <feather-icon
-                icon="MinusIcon"
-                size="14"
-              />
-            </b-button>
-            <b-input v-model="modalData.qty" min="1" class="mx-2 text-center"></b-input>
-            <b-button @click="() => ++modalData.qty" variant="primary">
-              <feather-icon
-                icon="PlusIcon"
-                size="15"
-              />
-            </b-button>
-        </b-col>
-      </b-row>
       <b-form-group
-        class="border-top pt-1"
-        label="Note"
-        label-for="note-item"
+        class="pt-1"
+        label="Customer Name"
+        label-for="customer-name-item"
       >
-        <b-form-textarea
-          id="note-item"
+        <b-form-input
+          id="customer-name-item"
           required
-          v-model="modalData.note"
+          v-model="customerName"
         >
-        </b-form-textarea>
+        </b-form-input>
       </b-form-group>
-
+      <b-form-group
+        class="pt-1"
+        label="Table Number"
+        label-for="customer-name-item"
+      >
+        <b-form-input
+          id="customer-name-item"
+          required
+          v-model="tableNumber"
+        >
+        </b-form-input>
+      </b-form-group>
       <template #modal-footer>
         <div class="w-100 d-flex justify-content-between">
           <b-button
             variant="secondary"
-            @click="closeOrderModal"
+            @click="closeIdentityModal"
           >
             Cancel
           </b-button>
           <b-button
             variant="primary"
             class="ml-2"
-            @click="doAddToCart()"
+            :disabled="!customerName || !tableNumber"
+            @click="placeOrder"
           >
-            Add To Cart
+            Place Order
           </b-button>
         </div>
       </template>
     </b-modal>
+    <!-- END OF MODAL -->
+    
+    <!-- MODAL EMPLOYEE NAME -->
+    <b-modal
+      centered
+      header-bg-variant="light"
+      id="modalEmployeeOrder"
+      v-model="modalEmployeeOrder"
+      ref="modal"
+    >
+      <template #modal-header>
+        <div class="w-100 d-flex justify-content-between">
+            <b>Make Order as Employee</b>
+            <b-link
+              @click="() => {
+                openIdentityModal()
+                closeEmployeeOrderModal()
+              }"
+            >
+              or make order as Customer
+            </b-link>
+        </div>
+      </template>
+      <b-form-group
+        class="pt-1"
+        label="Email"
+        label-for="customer-name-item"
+      >
+        <b-form-input
+          id="customer-name-item"
+          placeholder="Enter your account email"
+          required
+          :disabled="employee ? true : false"
+          v-model="employeeEmail"
+        >
+        </b-form-input>
+      </b-form-group>
+      <b-form-group
+        class="pt-1"
+        label="Password"
+        label-for="customer-name-item"
+      >
+        <b-form-input
+          id="customer-name-item"
+          placeholdder="Enter your account password"
+          v-model="employeePassword"
+          :disabled="employee ? true : false"
+          required
+          type="password"
+        >
+        </b-form-input>
+      </b-form-group>
+      <div v-if="employee ? true : false">
+       <hr>
+        <v-select
+          v-model="selectedBranch"
+          label="text"
+          :reduce="option => option.value"
+          placeholder="- Select a Branch -"
+          class="mb-1"
+          single
+          :options="selectBranches"
+        >
+        </v-select>
+
+        <v-select
+          v-model="selectedUnit"
+          label="text"
+          placeholder="- Select a Unit -"
+          single
+          :options="selectUnits"
+          :reduce="option => option.value"
+          :disabled="!selectedBranch ? true : false"
+        >
+        </v-select>
+      </div>
+      <template #modal-footer>
+        <div v-if="employee" 
+          class="w-100 d-flex justify-content-between"
+        >
+          <b-button
+            variant="secondary"
+            @click="closeEmployeeOrderModal"
+          >
+            Cancel
+          </b-button>
+          <b-button
+            variant="primary"
+            class="ml-2"
+            @click="placeOrderAsEmployee"
+          >
+            Place Order
+          </b-button>
+        </div>
+        <div class="w-100 d-flex justify-content-end" v-if="!employee">
+          <b-button
+            variant="primary"
+            :disabled="!employeePassword || !employeeEmail"
+            class="ml-2"
+            @click="signInAsEmployee"
+          >
+            Sign In
+          </b-button>
+        </div>
+      </template>
+    </b-modal>
+    <!-- END OF MODAL -->
 
     <!-- ECommerce Header -->
     <section id="ecommerce-header">
@@ -129,9 +223,9 @@
     <div class="body-content-overlay" />
 
     <!-- Searchbar -->
-    <div class="ecommerce-searchbar mt-1">
+    <!-- <div class="ecommerce-searchbar mt-1">
       <b-row>
-        <b-col cols="12">
+        <b-col cols="9">
           <b-input-group class="input-group-merge">
             <b-form-input
               v-model="filters.q"
@@ -147,123 +241,131 @@
           </b-input-group>
         </b-col>
       </b-row>
-    </div>
+    </div> -->
 
     <!-- Prodcuts -->
-    <section :class="itemView">
-      <b-card
-        v-for="product in products"
-        :key="product.id"
-        class="ecommerce-card product-card"
-        no-body
-        @click="openOrderModal(product)"
-      >
-        <div class="item-img justify-content-center">
-            <b-img
-              :alt="`${product.name}-${product.id}`"
-              fluid
-              class="card-img-top"
-              :src="product.picture"
-              @error="product.picture = product.default_picture"
+    <b-row>
+      <b-col cols="9">
+        <div class="ecommerce-searchbar">
+          <b-input-group class="input-group-merge">
+            <b-form-input
+              v-model="filters.q"
+              placeholder="Search Product"
+              class="search-product"
             />
+            <b-input-group-append is-text>
+              <feather-icon
+                icon="SearchIcon"
+                class="text-muted"
+              />
+            </b-input-group-append>
+          </b-input-group>
         </div>
-
-        <!-- Product Details -->
-        <b-card-body>
-          <div class="item-wrapper">
-          </div>
-          <h6 class="item-name">
-            <b-row>
-              <b-col cols="6">
-                  <h4
-                    class="text-primary"
-                  >
-                    {{ product.name }}
-                  </h4>
+        <!-- Dashboard -->
+        <b-card class="mt-2">
+          <b-table
+          style="min-height:200px;"
+          hover
+          responsive
+          :per-page="perPage"
+          :current-page="currentPage"
+          :items="orderSummary"
+          :fields="fields"
+          :sort-by.sync="sortBy"
+          :sort-desc.sync="sortDesc"
+          :sort-direction="sortDirection"
+          :filter="filter"
+          :filter-included-fields="filterOn"
+          @filtered="onFiltered"
+          show-empty
+        >
+          <template #empty>
+            <div class="text-center">
+              <span v-if="isLoading">Loading..</span>
+              <span v-else>No data available</span>
+            </div>
+          </template>
+          <template #cell(picture)="data">
+            <img 
+              v-if="data.item.picture"
+              class="rounded"
+              width="50" 
+              :src="data.item.picture" 
+              :alt="data.item.name"
+              @error="data.item.picture = data.item.default_picture"
+            />
+          </template>
+          <template #cell(base_price)="data">
+            <vue-numeric separator="." v-model="data.item.base_price" read-only></vue-numeric>
+          </template>
+          <template #cell(selling_price)="data">
+            <vue-numeric separator="." v-model="data.item.selling_price" read-only></vue-numeric>
+          </template>
+          <template #cell(action)="data">
+            <div class="d-flex align-items-center">
+              <b-button 
+                size="sm" 
+                variant="danger"
+                @click="data.item.qty > 0 ? data.item.qty -= 1 : ''"
+              >
+                 <feather-icon
+                  icon="MinusIcon"
+                  size="14"
+                />
+              </b-button>
+              <b-input size="sm" class="mx-1 text-center bg-white" style="width:50px;" readonly v-model="data.item.qty"></b-input>
+              <b-button 
+                size="sm" 
+                variant="primary" 
+                @click="data.item.qty + 1 <= data.item.stock ? data.item.qty += 1 : ''"
+              >
+                 <feather-icon
+                    icon="PlusIcon"
+                    size="14"
+                  />
+              </b-button>
+            </div>
+          </template>
+          <template #cell(note)="data">
+            <b-input v-model="data.item.note"></b-input>
+          </template>
+        </b-table>
+        </b-card>
+      </b-col>
+      <b-col cols="3">
+        <b-card>
+          <b-card-body>
+            <h4>Order Summary</h4>
+            <h5>Items</h5>
+            <b-row v-for="item in orderSummary.filter(x => x.qty > 0)" :set="price = item.qty * item.selling_price" :key="item.id" class="border-top py-1 mt-1">
+              <b-col cols="4">
+                {{ item.name }}<br>
+                <small>{{ item.note }}</small>
               </b-col>
-              <b-col cols="6 text-right">
-                <h4 class="item-price">
-                  <vue-numeric v-if="product.stock > 0" read-only separator="." v-model="product.selling_price"></vue-numeric>
-                  <b-badge variant="danger" v-else style="font-size:13px;">Sold Out</b-badge>
-                </h4>
-              </b-col>
-              <b-col cols="12">
-                <b-card-text class="item-description">
-                  {{ product.description || '-' }}
-                </b-card-text>
+              <b-col cols="3">x{{ item.qty }}</b-col>
+              <b-col cols="5" class="text-right">Rp. 
+                <vue-numeric separator="." v-model="price" read-only></vue-numeric>    
               </b-col>
             </b-row>
-          </h6>
-        </b-card-body>
-
-        <!-- Product Actions -->
-        <div class="item-options text-center">
-          <div class="item-wrapper">
-            <div class="item-cost">
-              <h4 class="item-price">
-                {{ product.selling_price }}
-              </h4>
-            </div>
-          </div>
-          <!-- <b-button
-            variant="light"
-            tag="a"
-            class="btn-wishlist"
-            @click="toggleProductInWishlist(product)"
-          >
-            <feather-icon
-              icon="HeartIcon"
-              class="mr-50"
-              :class="{'text-danger': product.isInWishlist}"
-            />
-            <span>Wishlist</span>
-          </b-button> -->
-          <!-- <b-button
-            variant="primary"
-            tag="a"
-            class="btn-cart"
-            @click="openOrderModal(product)"
-          >
-            <feather-icon
-              icon="ShoppingCartIcon"
-              class="mr-50"
-            />
-            <span>Add to Cart</span>
-          </b-button> -->
-        </div>
-      </b-card>
-    </section>
-
-    <!-- Pagination -->
-    <section>
-      <b-row>
-        <b-col cols="12">
-          <b-pagination
-            v-model="filters.page"
-            :total-rows="products.length"
-            :per-page="filters.perPage"
-            first-number
-            align="center"
-            last-number
-            prev-class="prev-item"
-            next-class="next-item"
-          >
-            <template #prev-text>
-              <feather-icon
-                icon="ChevronLeftIcon"
-                size="18"
-              />
-            </template>
-            <template #next-text>
-              <feather-icon
-                icon="ChevronRightIcon"
-                size="18"
-              />
-            </template>
-          </b-pagination>
-        </b-col>
-      </b-row>
-    </section>
+            <hr>
+            <b-row>
+              <b-col cols="6" class="font-weight-bold">Subtotal</b-col>
+              <b-col cols="6" class="font-weight-bold text-right">Rp. {{ toThousands(getSubtotal()) }}</b-col>
+            </b-row>
+            <b-row>
+              <b-col cols="6" class="">Tax ({{ unit ? unit.tax : 0 }}%)</b-col>
+              <b-col cols="6" class="text-right">Rp. {{ toThousands(calculateTax()) }}</b-col>
+            </b-row>
+            <hr>
+            <b-row>
+              <b-col cols="6" class=""><h4>Total</h4></b-col>
+              <b-col cols="6" class="text-right"><h4>Rp. {{ toThousands(getGrandTotal()) }}</h4></b-col>
+            </b-row>
+            <b-button variant="primary" block class="mt-3" @click="openIdentityModal()">Place Order</b-button>
+          </b-card-body>
+        </b-card>
+      </b-col>
+    </b-row>
 
     <!-- Sidebar -->
     <portal to="content-renderer-sidebar-detached-left">
@@ -285,6 +387,10 @@ import { useShopFiltersSortingAndPagination, useShopUi, useShopRemoteData } from
 import { useEcommerceUi } from '@/views/apps/e-commerce/useEcommerce'
 import { useProduct } from '@/composable/useProduct'
 import { useCart } from '@/composable/useCart'
+import { useUnit } from '@/composable/useUnit'
+import { useTransaction } from '@/composable/useTransaction' 
+import { useUser } from '@/composable/useUser'
+import { toThousands } from '@/libs/formatter'
 
 export default {
   directives: {
@@ -296,7 +402,7 @@ export default {
   },
   setup(props, { root, emit }) {
     const {
-      filters, filterOptions, sortBy, sortByOptions,
+      filters, filterOptions, sortByOptions,
     } = useShopFiltersSortingAndPagination()
 
     const { handleCartActionClick, toggleProductInWishlist } = useEcommerceUi()
@@ -308,18 +414,167 @@ export default {
     // const { products, fetchProducts } = useShopRemoteData()
     const { mqShallShowLeftSidebar } = useResponsiveAppLeftSidebarVisibility()
 
-    // fetchShopProducts()
     // ^^^^ UI DEPENDENCIES
     // =====================
     // Write code below..
+    const { fetchProducts, products, isLoading } = useProduct()
+    const { cart, addToCart, removeFromCart, clearCart} = useCart()
+    const { activeUnit, fetchUnitByID, unit } = useUnit()
+    const { createTransaction } = useTransaction()
+    const { loginEmployeeOrder } = useUser()
+
+    const modalEmployeeOrder = ref(false)
+    const employeeEmail = ref('')
+    const employeePassword = ref('')
+
+    const employee = ref(null)
+    const employeeBranch = ref(null)
+    const employeeUnit = ref(null)
+
+    const selectBranches = ref([])
+    const selectedBranch = ref(null)
+    const selectUnits = ref([])
+    const selectedUnit = ref(null)
+
+    const customerName = ref('')
+    const tableNumber = ref('')
+    const modalIdentity = ref(false)
+    
+    const openEmployeeOrderModal = () => {
+      employee.value = null 
+      employeeUnit.value = null
+      employeeEmail.value = ''
+      employeePassword.value = ''
+      modalEmployeeOrder.value = true
+    }
+
+    const closeEmployeeOrderModal = () => {
+      employee.value = null 
+      employeeUnit.value = null
+      employeeEmail.value = ''
+      employeePassword.value = ''
+      modalEmployeeOrder.value = false
+    }
+
+    const openIdentityModal = () => {
+      customerName.value = '' 
+      tableNumber.value = '' 
+      modalIdentity.value = true
+    }
+
+    const closeIdentityModal = () => {
+      customerName.value = '' 
+      tableNumber.value = '' 
+      modalIdentity.value = false
+    }
 
     const modalOrder = ref(false)
+    const orderSummary = ref([])
 
-    const { fetchProducts, products } = useProduct()
-    const { cart, addToCart, removeFromCart } = useCart()
+    const placeOrderAsEmployee = async () => {
+      const items = orderSummary.value.filter(x => x.qty).map(item => {
+        return {
+          product_id: item.id,
+          quantity: item.qty,
+          note: item.note,
+        }
+      })
+
+      const payload = {
+        employee_id: employee.value.id,
+        employee_unit_id: selectedUnit.value,
+        items
+      }
+
+      const [response, error] = await createTransaction(payload)
+      submitHandler(response, error)
+    }
+
+    const placeOrder = async () => {
+      const items = orderSummary.value.filter(x => x.qty).map(item => {
+        return {
+          product_id: item.id,
+          quantity: item.qty,
+          note: item.note
+        }
+      })
+
+      const payload = {
+        customer_name: customerName.value,
+        table_number: tableNumber.value,
+        items
+      }
+      
+      const [response, error] = await createTransaction(payload)
+      submitHandler(response, error)
+    }
+
+    const signInAsEmployee = async () => {
+      const payload = {
+        email: employeeEmail.value,
+        password: employeePassword.value,
+      }
+
+      const [response, error] = await loginEmployeeOrder(payload)
+      if (error) root.$notify.error(error.message)
+      if (response) root.$notify.success(response.message)
+      employee.value = response.data.user
+    }
+
+    watch(employee, x => {
+      if (!x) return;
+      selectBranches.value = x.company.branches.map(branch => {
+        return {
+          value: branch.id,
+          text: branch.name
+        }
+      })
+    })
+
+    watch(selectedBranch, x => {
+      if (!employee) return;
+      selectedUnit.value = null
+      selectUnits.value = employee.value.company.units.filter(unit => unit.branch_id === x).map(unit => {
+        return {
+          value: unit.id,
+          text: unit.name
+        }
+      })
+    })
+    
+    const getSubtotal = () => {
+      return orderSummary.value.filter(x => x.qty).reduce((a, b) => {
+        let total = typeof a === 'object' ? (a.qty * a.selling_price) + (b.qty * b.selling_price) : b.qty * b.selling_price
+        return total
+      }, 0)
+    }
+
+    const calculateTax = () => {
+      const subtotal = getSubtotal(orderSummary.value)
+      const tax = unit.value ? unit.value.tax : 0
+      return subtotal * tax / 100
+    }
+
+    const getGrandTotal = () => {
+      const subtotal = getSubtotal(orderSummary.value)
+      const tax = calculateTax()
+      return subtotal + tax
+    }
+
+    const resetOrderSummary = () => {
+      orderSummary.value = products.value.map(x => {
+        return {
+          ...x,
+          qty: 0,
+          note: '',
+        }
+      })
+    }
 
     onMounted(async () => {
+      await fetchUnitByID(activeUnit.value.id)
       await fetchProducts()
+      resetOrderSummary()
     })
 
     const modalData = reactive({
@@ -365,6 +620,18 @@ export default {
       modalOrder.value = false
     }
 
+    const submitHandler = async (response, error) => {
+      if (error && error.message) return root.$notify.error(error.message)
+      else if (response) {
+        root.$notify.success(response.message)
+        if (modalEmployeeOrder.value) closeEmployeeOrderModal()
+        if (modalIdentity.value) closeIdentityModal()
+        await fetchProducts()
+        clearCart()
+        resetOrderSummary()
+      }
+    }
+
     const closeOrderModal = () => {
       // modalData.id = null
       // modalData.name = null
@@ -377,6 +644,7 @@ export default {
       modalOrder.value = false 
     }
 
+    const sortBy = ref('') 
     watch([filters, sortBy], async (filter) => {
       let search = filter[0].q
       await fetchProducts({ search })
@@ -389,8 +657,35 @@ export default {
     })
 
     return {
+      signInAsEmployee,
+      placeOrderAsEmployee,
+      placeOrder,
+      customerName,
+      tableNumber,
+      modalIdentity,
+      employee,
+      employeeEmail,
+      employeePassword,
+      employeeBranch,
+      selectBranches,
+      selectedBranch,
+      selectUnits,
+      selectedUnit,
+      loginEmployeeOrder,
+      openEmployeeOrderModal,
+      closeEmployeeOrderModal,
+      openIdentityModal,
+      closeIdentityModal,
+      modalIdentity,
+      modalEmployeeOrder,
+      unit,
+      calculateTax,
+      getSubtotal,
+      getGrandTotal,
+      isLoading,
       doAddToCart,
       closeOrderModal,
+      orderSummary,
       modalData,
       openOrderModal,
       filters,
@@ -411,7 +706,58 @@ export default {
 
       // mqShallShowLeftSidebar
       mqShallShowLeftSidebar,
+      toThousands,
     }
+  },
+  data() {
+    return {
+      perPage: 5,
+      pageOptions: [3, 5, 10],
+      currentPage: 1,
+      sortDesc: false,
+      sortDirection: 'asc',
+      filter: null,
+      filterOn: [],
+      infoModal: {
+        id: 'info-modal',
+        title: '',
+        content: '',
+      },
+      fields: [
+        { key: 'picture', label: '#' },
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'code', label: 'Code', sortable: true },
+        { key: 'category.name', label: 'Category', sortable: true },
+        { key: 'selling_price', label: 'Price', sortable: true },
+        { key: 'stock', label: 'Stock', sortable:true },
+        { key: 'action', label: 'Action'},
+        { key: 'note', label: 'Note'},
+      ],
+    }
+  },
+  computed: {
+    sortOptions() {
+      // Create an options list from our fields
+      return this.fields
+        .filter(f => f.sortable)
+        .map(f => ({ text: f.label, value: f.key }))
+    },
+  },
+  methods: {
+    info(item, index, button) {
+      this.infoModal.title = `Row index: ${index}`
+      this.infoModal.content = JSON.stringify(item, null, 2)
+      this.$root.$emit('bv::show::modal', this.infoModal.id, button)
+    },
+    resetInfoModal() {
+      this.infoModal.title = ''
+      this.infoModal.content = ''
+    },
+    onFiltered(filteredItems) {
+      // Trigger pagination to update the number of buttons/pages due to filtering
+      this.totalRows = filteredItems.length
+      this.currentPage = 1
+    },
   },
 }
 </script>
@@ -426,10 +772,10 @@ export default {
   cursor: pointer;
 }
 
-.item-view-radio-group ::v-deep {
+/* .item-view-radio-group ::v-deep {
   .btn {
     display: flex;
     align-items: center;
-  }
-}
+  } */
+/* } */
 </style>

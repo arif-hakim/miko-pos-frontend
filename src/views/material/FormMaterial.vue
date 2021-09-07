@@ -58,6 +58,19 @@
           />
         </b-form-group>
         <b-form-group
+          label="Conversion"
+          label-for="v-Raw-conversion"
+        >
+          <v-select
+            v-model="input.conversion_id"
+            :options="conversions"
+            label="name"
+            placeholder="Choose Conversion"
+            :reduce="x => x.id"
+          >
+          </v-select>
+        </b-form-group>
+        <b-form-group
           for="extension"
           class="mt-1"
           label="Material Picture"
@@ -89,6 +102,7 @@
 
 import { useMaterial } from '@/composable/useMaterial'
 import { useUnit } from '@/composable/useUnit'
+import { useConversion } from '@/composable/useConversion'
 import { useMaterialCategory } from '@/composable/useMaterialCategory'
 import { ref, onMounted, reactive } from '@vue/composition-api'
 
@@ -100,12 +114,14 @@ export default {
     const { createMaterial, material, fetchMaterialByID, updateMaterial } = useMaterial()
     const { fetchMaterialCategories } = useMaterialCategory()
     const { activeUnit } = useUnit()
-    
+    const { fetchConversions, conversions } = useConversion()
+
     const input = reactive({
       id: null,
       name: '',
       code: '',
       raw_material_category_id: '',
+      conversion_id: '',
       unit_measurement: '',
       description: '',
       picture: null,
@@ -113,12 +129,15 @@ export default {
 
     onMounted(async () => {
       await fetchMaterialCategories()
+      await fetchConversions()
+
       if (material_id) {
         await fetchMaterialByID(material_id)
         input.id = material.value.id
         input.name = material.value.name
         input.code = material.value.code
         input.raw_material_category_id = material.value.raw_material_category_id
+        input.conversion_id = material.value.conversion_id
         input.unit_measurement = material.value.unit_measurement
         input.description = material.value.description
       }
@@ -153,6 +172,7 @@ export default {
       getTitle: () => material_id ? 'Edit' : 'Create',
       ...useMaterial(),
       ...useMaterialCategory(),
+      ...useConversion(),
     }
   },
 }

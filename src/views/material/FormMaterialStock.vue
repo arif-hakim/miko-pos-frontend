@@ -63,7 +63,11 @@
           :label="`${getTitle()} Stock By`"
           label-for="v-Material-selling-price"
         >
-          <vue-numeric separator="." class="form-control" v-model="stockChanges" />
+          <b-form-input
+            type="number"
+            v-model.number="stockChanges"
+            placeholder="Must be more than 0"
+          ></b-form-input>
         </b-form-group>
         <b-form-group
           label="Stock Changes Description"

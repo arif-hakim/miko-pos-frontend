@@ -35,7 +35,7 @@
         <router-link
           tag="button"
           class="btn btn-sm btn-primary"
-          to="/material/create"
+          to="/conversion/create"
         >
           <feather-icon
             icon="PlusIcon"
@@ -46,13 +46,11 @@
 
       <b-col cols="12">
         <b-table
-          style="min-height:200px;"
-          striped
           hover
           responsive
           :per-page="perPage"
           :current-page="currentPage"
-          :items="materials"
+          :items="conversions"
           :fields="fields"
           :sort-by.sync="sortBy"
           :sort-desc.sync="sortDesc"
@@ -60,6 +58,7 @@
           :filter="filter"
           :filter-included-fields="filterOn"
           @filtered="onFiltered"
+          show-empty
         >
           <template #empty>
             <div class="text-center">
@@ -67,34 +66,39 @@
               <span v-else>No data available</span>
             </div>
           </template>
-          <template #cell(picture)="data">
-            <img 
-              v-if="data.item.picture"
-              class="rounded"
-              width="50" 
-              :src="data.item.picture" 
-              :alt="data.item.name"
-              @error="data.item.picture = data.item.default_picture"
-            />
+          <template #cell(created_at)="data">
+            {{ moment(data.item.created_at).format('DD/MM/YYYY') }}
           </template>
-          <template #cell(conversion)="data">
-            {{ data.item.conversion ? data.item.conversion.name : '-' }}
+          <template #cell(equation)="data">
+            <span v-if="data.item.operator == '*'">
+              1 {{ data.item.start_unit_measurement }} = {{ toThousands(1 * data.item.amount) }} {{ data.item.end_unit_measurement }}
+            </span>
+            <span v-else>
+              1 {{ data.item.start_unit_measurement }} = {{ toThousands(1 / data.item.amount) }} {{ data.item.end_unit_measurement }}
+            </span>
           </template>
           <template #cell(action)="data">
-            <b-dropdown id="dropdown-1" text="Stock" variant="warning" style="margin-bottom:5px;" class="mr-1">
-              <b-dropdown-item :to="`/material/${data.item.id}/increase-stock`">Increase</b-dropdown-item>
-              <b-dropdown-item variant="danger" :to="`/material/${data.item.id}/decrease-stock`">Decrease</b-dropdown-item>
-              <b-dropdown-divider></b-dropdown-divider>
-              <b-dropdown-item :to="`/material/${data.item.id}/stock-history`">History</b-dropdown-item>
-            </b-dropdown>
-            <b-dropdown id="dropdown-1" text="More" variant="info" class="">
-              <b-dropdown-item :to="`/material/${data.item.id}`">Edit</b-dropdown-item>
-              <b-dropdown-item variant="danger" @click="doDelete(data.item.id)">Delete</b-dropdown-item>
-            </b-dropdown>
+            <router-link
+              tag="button"
+              class="btn btn-sm btn-warning mr-1"
+              :to="`/conversion/${data.item.id}`"
+            >
+              <feather-icon
+                icon="EditIcon"
+              ></feather-icon>
+            </router-link>
+            <b-button
+              size="sm"
+              variant="danger"
+              @click="doDelete(data.item.id)"
+            >
+              <feather-icon
+                icon="TrashIcon"
+              />
+            </b-button>
           </template>
         </b-table>
       </b-col>
-
       
       <b-col
         md="2"
@@ -133,24 +137,28 @@
 
 <script>
 
-import { useMaterial } from '@/composable/useMaterial'
-import { ref, watch, onMounted } from '@vue/composition-api'
+import moment from 'moment'
+import { useConversion } from '@/composable/useConversion'
+import { useUnit } from '@/composable/useUnit'
+import { ref, onMounted } from '@vue/composition-api'
+import { toThousands } from '@/libs/formatter'
 
 export default {
   components: {
   },
-  setup (props, { root }) {
-
-    const { fetchMaterials, materials, deleteMaterial } = useMaterial()
+  setup(props, { root }) {
+    const { fetchConversions, conversions, deleteConversion } = useConversion()
+    const { activeUnit } = useUnit()
     const totalRows = ref(0)
 
     onMounted(async () => {
-      await fetchMaterials()
-      totalRows.value = materials.value.length
+      const unit_id = activeUnit.value.id
+      await fetchConversions({ unit_id })
+      totalRows.value = conversions.value.length
     })
 
     const doDelete = async (id) => {
-      const [response, error] = await deleteMaterial(id)
+      const [response, error] = await deleteConversion(id)
       submitHandler(response, error)
     }
 
@@ -161,8 +169,10 @@ export default {
 
     return {
       totalRows,
+      moment,
+      ...useConversion(),
       doDelete,
-      ...useMaterial(),
+      toThousands,
     }
   },
   data() {
@@ -181,17 +191,14 @@ export default {
         content: '',
       },
       fields: [
-        { key: 'picture', label: '#' },
-        { key: 'raw_material_category.name', label: 'Category', sortable: true },
-        { key: 'code', label: 'Code', sortable: true },
         { key: 'name', label: 'Name', sortable: true },
-        { key: 'unit_measurement', label: 'Unit Measurement', sortable: true },
-        { key: 'conversion', label: 'Conversion', sortable: true },
-        { key: 'description', label: 'Description', sortable: true },
-        { key: 'stock', label: 'Stock'},
+        { key: 'start_unit_measurement', label: 'Start', sortable: true },
+        { key: 'operator', label: 'Operator', sortable: true },
+        { key: 'amount', label: 'Amount', sortable: true },
+        { key: 'end_unit_measurement', label: 'End', sortable: true },
+        { key: 'equation', label: 'Equation' },
+        { key: 'created_at', label: 'Created At', sortable: true },
         { key: 'action', label: 'Action'},
-      ],
-      items: [
       ],
     }
   },
@@ -202,10 +209,6 @@ export default {
         .filter(f => f.sortable)
         .map(f => ({ text: f.label, value: f.key }))
     },
-  },
-  mounted() {
-    // Set the initial number of items
-    this.totalRows = this.items.length
   },
   methods: {
     info(item, index, button) {

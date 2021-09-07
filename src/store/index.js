@@ -16,6 +16,7 @@ import material from './material'
 import materialCategory from './materialCategory'
 import transaction from './transaction'
 import cart from './cart'
+import conversion from './conversion'
 
 Vue.use(Vuex)
 
@@ -31,6 +32,7 @@ export default new Vuex.Store({
     transaction,
     cart,
     materialCategory,
+    conversion,
     
     // Template Dependency
     app,
